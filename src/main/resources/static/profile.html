@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Профиль пользователя - Коллекция статуэток лошадей</title>
+    <style>
+        body {
+            font-family: 'Georgia', serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5dc;
+            color: #4a2c0b;
+        }
+
+        .header {
+            position: relative;
+            height: 220px;
+            background-image: url('placeholder-header-bg.jpg');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.6);
+            border-bottom: 3px solid #8b4513;
+        }
+
+        .profile-pic {
+            position: absolute;
+            top: 45%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            background-image: url('placeholder-profile-pic.jpg');
+            background-size: cover;
+            border: 3px solid #cd853f;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .profile-name {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 26px;
+            font-weight: bold;
+            font-style: italic;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            padding: 12px;
+            background-color: white;
+            border-bottom: 1px solid #d2b48c;
+        }
+
+        .stat {
+            text-align: center;
+            position: relative;
+        }
+
+        .stat-value {
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: #6b4c2e;
+        }
+
+        .stat-figurines::before { content: '🐴'; }
+        .stat-collecting::before { content: '🏆'; }
+        .stat-members::before { content: '👥'; }
+
+        .buttons {
+            display: flex;
+            justify-content: space-around;
+            padding: 12px;
+            background-color: white;
+        }
+
+        .button {
+            padding: 10px 22px;
+            border: none;
+            border-radius: 22px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .button:hover {
+            transform: scale(1.03);
+        }
+
+        .add-button {
+            background-color: #556b2f;
+            color: white;
+        }
+
+        .edit-button {
+            background-color: #8b4513;
+            color: white;
+        }
+
+        .section {
+            padding: 12px;
+            background-color: white;
+            margin-bottom: 12px;
+            border: 1px solid #e6d8c3;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .section-title {
+            font-size: 19px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            color: #8b4513;
+            position: relative;
+        }
+
+        .section-title::before {
+            content: '🧲';
+            margin-right: 8px;
+            font-size: 22px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .card {
+            width: 100%;
+            height: 130px;
+            background-color: #f0f0f0;
+            border-radius: 12px;
+            background-size: cover;
+            background-position: center;
+            cursor: pointer;
+            transition: box-shadow 0.3s;
+            border: 1px solid #d2b48c;
+        }
+
+        .card:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            background-color: #4a2c0b;
+            padding: 10px 0;
+            border-top: 2px solid #8b4513;
+        }
+
+        .nav-icon {
+            color: #d2b48c;
+            font-size: 26px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .nav-icon:hover {
+            color: white;
+        }
+
+        .nav-plus {
+            background-color: #556b2f;
+            border-radius: 50%;
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 22px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="profile-pic"></div>
+    <div class="profile-name">Loading...</div>
+</div>
+
+<div class="stats">
+    <div class="stat stat-figurines">
+        <div class="stat-value">0</div>
+        <div class="stat-label">Фигурки</div>
+    </div>
+    <div class="stat stat-collecting">
+        <div class="stat-value">0</div>
+        <div class="stat-label">Коллекционирую</div>
+    </div>
+    <div class="stat stat-members">
+        <div class="stat-value">0</div>
+        <div class="stat-label">Члены</div>
+    </div>
+</div>
+
+<div class="buttons">
+    <button class="button add-button" onclick="addFigurine()">+ Добавить фигурку</button>
+    <button class="button edit-button" onclick="editDetails()">Редактировать детали</button>
+</div>
+
+<div class="section">
+    <div class="section-title">Лошади</div>
+    <div class="grid">
+        <!-- Карточки загружаются динамически -->
+    </div>
+</div>
+
+<div class="bottom-nav">
+    <div class="nav-icon">🏠</div>
+    <div class="nav-icon">🔍</div>
+    <div class="nav-plus">+</div>
+    <div class="nav-icon">💬</div>
+    <div class="nav-icon">👤</div>
+</div>
+
+<script>
+    // Парсим userId из URL (например, profile.html?userId=3)
+    const urlParams = new URLSearchParams(window.location.search);
+    let userId = urlParams.get('userId') || 1; // Fallback на 1, если не указан
+    const myUserId = 1; // Текущий юзер (из auth, пока заглушка)
+
+    function loadProfile() {
+        // Загружаем профиль
+        fetch(`/api/v1/user/${userId}`)
+            .then(response => {
+                if (!response.ok) throw new Error('Ошибка загрузки профиля');
+                return response.json();
+            })
+            .then(profile => {
+                document.querySelector('.profile-name').textContent = `${profile.firstName} ${profile.lastName}` || 'Unknown';
+                document.querySelector('.profile-pic').style.backgroundImage = `url(${profile.nickName || 'placeholder-profile-pic.jpg'})`;
+            })
+            .catch(error => console.error('Ошибка профиля:', error));
+
+        // Загружаем коллекцию
+        fetch(`/api/v1/users/${userId}/collection`)
+            .then(response => {
+                if (!response.ok) throw new Error('Ошибка загрузки коллекции');
+                return response.json();
+            })
+            .then(horses => {
+                const grid = document.querySelector('.grid');
+                grid.innerHTML = '';
+                horses.forEach(horse => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.style.backgroundImage = `url(${horse.avatar || 'placeholder-horse.jpg'})`;
+                    card.onclick = () => showDetails(horse.id);
+                    grid.appendChild(card);
+                });
+                // Обновляем статистику фигурок на основе длины коллекции
+                document.querySelector('.stat-figurines .stat-value').textContent = horses.length;
+                // Заглушки для других статистик
+                document.querySelector('.stat-collecting .stat-value').textContent = 0;
+                document.querySelector('.stat-members .stat-value').textContent = 0;
+            })
+            .catch(error => console.error('Ошибка коллекции:', error));
+    }
+
+    window.onload = loadProfile;
+
+    // Добавление фигурки (только для своего профиля)
+    function addFigurine() {
+        if (userId != myUserId) {
+            alert('Ты можешь добавлять только в свою коллекцию!');
+            return;
+        }
+        const name = prompt('Имя лошади:');
+        const breed = prompt('Порода:');
+        const description = prompt('Описание:');
+        const masterName = prompt('Имя мастера:');
+        const mediaLink = prompt('Ссылка на аватар:');
+
+        if (name && breed && mediaLink) {
+            const request = { name, breed, description, masterName, media: [{ link: mediaLink }] };
+            fetch(`/api/v1/users/${userId}/collection/addHorse`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(request)
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error('Ошибка добавления');
+                    loadProfile();
+                    alert('Фигурка добавлена!');
+                })
+                .catch(error => alert('Ошибка: ' + error.message));
+        }
+    }
+
+    function editDetails() {
+        if (userId != myUserId) {
+            alert('Редактировать можно только свой профиль!');
+            return;
+        }
+        const firstName = prompt('Новое имя:');
+        const lastName = prompt('Новая фамилия:');
+        const nickName = prompt('Новый никнейм (для аватара):');
+        if (firstName || lastName || nickName) {
+            const dto = {};
+            if (firstName) dto.firstName = firstName;
+            if (lastName) dto.lastName = lastName;
+            if (nickName) dto.nickName = nickName;
+            fetch(`/api/v1/user/${userId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dto)
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error('Ошибка обновления');
+                    loadProfile();
+                    alert('Профиль обновлён!');
+                })
+                .catch(error => alert('Ошибка: ' + error.message));
+        }
+    }
+
+    function showDetails(id) {
+        alert(`Детали для ID ${id} пока не реализованы.`);
+    }
+</script>
+</body>
+</html>
