@@ -1,23 +1,23 @@
 document.addEventListener('DOMContentLoaded', function() {
     const urlParams = new URLSearchParams(window.location.search);
-    const horseId = urlParams.get('horseId');
+    const modelId = urlParams.get('modelId');
     const myUserId = localStorage.getItem('userId');
     const token = localStorage.getItem('token');
 
-    console.log('Horse ID:', horseId, 'User ID:', myUserId); // Лог для отладки
+    console.log('model ID:', modelId, 'User ID:', myUserId); // Лог для отладки
 
     if (!myUserId || !token) {
         alert('Вы не вошли в систему! Пожалуйста, войдите.');
-        window.location.href = '/login.html';
+        window.location.href = '/page/login.html';
         return;
     }
 
-    if (!horseId) {
+    if (!modelId) {
         document.getElementById('message').textContent = 'Ошибка: ID лошади не указан';
         return;
     }
 
-    fetch(`api/v1/users/{id}/collection/${horseId}`, {
+    fetch(`/api/v1/users/${myUserId}/collection/${modelId}`, {
         headers: {
             'Authorization': `Bearer ${token}`
         }
@@ -35,16 +35,16 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             return response.json();
         })
-        .then(horse => {
-            console.log('Данные лошади:', horse); // Лог для отладки
-            document.getElementById('horse-name').textContent = horse.name || 'Не указано';
-            document.getElementById('horse-breed').textContent = horse.breed || 'Не указано';
-            document.getElementById('horse-description').textContent = horse.description || 'Нет описания';
-            document.getElementById('horse-masterName').textContent = horse.masterName || 'Не указано';
-            document.getElementById('horse-releaseDate').textContent = horse.releaseDate
-                ? new Date(horse.releaseDate).toLocaleDateString('ru-RU')
+        .then(model => {
+            console.log('Данные лошади:', model); // Лог для отладки
+            document.getElementById('model-name').textContent = model.name || 'Не указано';
+            document.getElementById('model-breed').textContent = model.breed || 'Не указано';
+            document.getElementById('model-description').textContent = model.description || 'Нет описания';
+            document.getElementById('model-masterName').textContent = model.masterName || 'Не указано';
+            document.getElementById('model-releaseDate').textContent = model.releaseDate
+                ? new Date(model.releaseDate).toLocaleDateString('ru-RU')
                 : 'Не указано';
-            document.getElementById('horse-image').style.backgroundImage = `url(${horse.avatar || 'placeholder-horse.jpg'})`;
+            document.getElementById('model-image').style.backgroundImage = `url(${model.avatar || 'placeholder-model.jpg'})`;
         })
         .catch(error => {
             console.error('Ошибка:', error.message); // Лог для отладки
@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 localStorage.removeItem('token');
                 localStorage.removeItem('userId');
                 localStorage.removeItem('roles');
-                window.location.href = '/login.html';
+                window.location.href = '/page/login.html';
             }
         });
 });

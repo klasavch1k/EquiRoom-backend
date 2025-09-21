@@ -1,4 +1,4 @@
-document.getElementById('add-horse-form').addEventListener('submit', function(event) {
+document.getElementById('add-model-form').addEventListener('submit', function(event) {
     event.preventDefault();
 
     const myUserId = localStorage.getItem('userId');
@@ -8,7 +8,7 @@ document.getElementById('add-horse-form').addEventListener('submit', function(ev
 
     if (!myUserId) {
         alert('Вы не вошли в систему! Пожалуйста, войдите.');
-        window.location.href = '/login.html';
+        window.location.href = '/page/login.html';
         return;
     }
 
@@ -28,7 +28,7 @@ document.getElementById('add-horse-form').addEventListener('submit', function(ev
 
     console.log('Отправка данных:', request); // Лог для отладки
 
-    fetch(`/api/v1/users/${myUserId}/collection/addHorse`, {
+    fetch(`/api/v1/users/${myUserId}/collection/addModel`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -54,10 +54,10 @@ document.getElementById('add-horse-form').addEventListener('submit', function(ev
         .then(() => {
             console.log('Фигурка добавлена, редирект...'); // Лог для отладки
             document.getElementById('message').textContent = 'Фигурка добавлена!';
-            document.getElementById('add-horse-form').reset();
-            console.log('Редирект на профиль:', `/index.html?userId=${myUserId}`); // Лог для отладки
+            document.getElementById('add-model-form').reset();
+            console.log('Редирект на профиль:', `/page/index.html?userId=${myUserId}`); // Лог для отладки
             setTimeout(() => {
-                window.location.href = `/index.html?userId=${myUserId}`;
+                window.location.href = `/page/index.html?userId=${myUserId}`;
             }, 1000);
         })
         .catch(error => {
@@ -67,7 +67,7 @@ document.getElementById('add-horse-form').addEventListener('submit', function(ev
                 localStorage.removeItem('token');
                 localStorage.removeItem('userId');
                 localStorage.removeItem('roles');
-                window.location.href = '/login.html';
+                window.location.href = '/page/login.html';
             }
         });
 });

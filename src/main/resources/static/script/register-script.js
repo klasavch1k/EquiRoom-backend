@@ -40,7 +40,7 @@ document.getElementById('register-form').addEventListener('submit', function(eve
                     document.getElementById('message').textContent = data.message;
                     document.getElementById('register-form').reset();
                     setTimeout(() => {
-                        window.location.href = `/index.html?userId=${loginData.userId}`;
+                        window.location.href = `/page/index.html?userId=${loginData.userId}`;
                     }, 1000);
                 });
         })

@@ -127,25 +127,25 @@ body {
     color: white;
 }
 
-.add-horse-form {
+.add-model-form {
     max-width: 400px;
     margin: 20px auto;
     padding: 20px;
 }
 
-.add-horse-form .form-group {
+.add-model-form .form-group {
     margin-bottom: 15px;
 }
 
-.add-horse-form .form-group label {
+.add-model-form .form-group label {
     display: block;
     font-weight: bold;
     color: #8b4513;
     margin-bottom: 5px;
 }
 
-.add-horse-form .form-group input,
-.add-horse-form .form-group textarea {
+.add-model-form .form-group input,
+.add-model-form .form-group textarea {
     width: 100%;
     padding: 10px;
     border: 1px solid #d2b48c;
@@ -154,11 +154,11 @@ body {
     box-sizing: border-box;
 }
 
-.add-horse-form .form-group textarea {
+.add-model-form .form-group textarea {
     resize: vertical;
 }
 
-.add-horse-button {
+.add-model-button {
     background-color: #556b2f;
     color: white;
     width: 100%;
@@ -170,7 +170,7 @@ body {
     transition: background-color 0.3s, transform 0.2s;
 }
 
-.add-horse-button:hover {
+.add-model-button:hover {
     background-color: #3e4f22;
     transform: scale(1.03);
 }
@@ -363,7 +363,7 @@ body {
 }
 
 /* Дополнение к существующему styles.css */
-.horse-details {
+.model-details {
     max-width: 400px;
     margin: 20px auto;
     padding: 20px;
@@ -373,18 +373,18 @@ body {
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
-.horse-details .form-group {
+.model-details .form-group {
     margin-bottom: 15px;
 }
 
-.horse-details .form-group label {
+.model-details .form-group label {
     display: block;
     font-weight: bold;
     color: #8b4513;
     margin-bottom: 5px;
 }
 
-.horse-details .form-group p {
+.model-details .form-group p {
     font-size: 16px;
     color: #4a2c0b;
     padding: 10px;
@@ -393,7 +393,7 @@ body {
     background-color: #f5f5dc;
 }
 
-.horse-image {
+.model-image {
     width: 100%;
     height: 200px;
     background-size: cover;

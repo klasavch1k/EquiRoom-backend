@@ -25,7 +25,7 @@ document.getElementById('login-form').addEventListener('submit', function(event)
             document.getElementById('message').textContent = 'Вход успешен!';
             // Редирект на страницу профиля с userId
             setTimeout(() => {
-                window.location.href = `/index.html?userId=${data.userId}`;
+                window.location.href = `/page/index.html?userId=${data.userId}`;
             }, 1000);
         })
         .catch(error => {

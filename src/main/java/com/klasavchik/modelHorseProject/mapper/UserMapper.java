@@ -39,7 +39,7 @@ public class UserMapper {
                 .firstName(user.getProfile().getFirstName())
                 .lastName(user.getProfile().getLastName())
                 .nickName(user.getProfile().getNickName()) // Используем как отображаемое имя
-                .figurinesCount((int) user.getModelsOwn().size()) // Кол-во фигурок
+                .modelsCount((int) user.getModelsOwn().size()) // Кол-во фигурок
                 .collectingCount(0) // Заглушка, замени логикой
                 .membersCount(0) // Заглушка, замени логикой
                 .build();

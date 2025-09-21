@@ -10,7 +10,7 @@ public class UserProfileDTO {
     private String firstName;
     private String lastName;
     private String nickName; // Используем как аватар или отображаемое имя
-    private int figurinesCount; // Кол-во фигурок из коллекции
+    private int modelsCount; // Кол-во фигурок из коллекции
     private int collectingCount; // Кол-во коллекций (пока заглушка)
     private int membersCount; // Кол-во членов (пока заглушка)
 }

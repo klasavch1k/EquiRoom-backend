@@ -37,7 +37,7 @@ function displayUsers(users) {
             </div>
         `;
         card.onclick = () => {
-            window.location.href = `/index.html?userId=${user.id}`;
+            window.location.href = `/page/index.html?userId=${user.id}`;
         };
         grid.appendChild(card);
     });

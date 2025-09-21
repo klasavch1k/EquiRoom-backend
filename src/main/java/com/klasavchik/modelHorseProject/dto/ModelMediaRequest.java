@@ -4,6 +4,6 @@ import lombok.Builder;
 import lombok.Data;
 @Builder
 @Data
-public class HorseModelMediaRequest {
+public class ModelMediaRequest {
     private String link;
 }

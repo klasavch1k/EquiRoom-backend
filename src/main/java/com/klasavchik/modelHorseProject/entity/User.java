@@ -47,7 +47,8 @@ public class User{
     private List<Model> modelsOwn = new ArrayList<>();
 
     @OneToMany(mappedBy = "master")
-    private Set<Model> modelsSetMade = new HashSet<>();
+    @Builder.Default
+    private List<Model> modelsSetMade = new ArrayList<Model>();
 
     public void addRole(Role role) {
         UserRole userRole = new UserRole();

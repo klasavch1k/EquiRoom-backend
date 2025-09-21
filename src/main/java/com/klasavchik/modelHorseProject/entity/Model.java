@@ -33,6 +33,6 @@ public class Model {
 
     private String masterName;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "horseModel")
-    private List<HorseModelMedia> horseModelMedia;
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "model")
+    private List<ModelMedia> ModelMedia;
 }

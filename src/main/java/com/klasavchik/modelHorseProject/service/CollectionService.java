@@ -1,10 +1,10 @@
 package com.klasavchik.modelHorseProject.service;
 
-import com.klasavchik.modelHorseProject.dto.CreateHorseRequest;
-import com.klasavchik.modelHorseProject.dto.HorseModelListRequest;
-import com.klasavchik.modelHorseProject.dto.HorseModelResponse;
+import com.klasavchik.modelHorseProject.dto.CreateModelRequest;
+import com.klasavchik.modelHorseProject.dto.ModelListRequest;
+import com.klasavchik.modelHorseProject.dto.ModelResponse;
 import com.klasavchik.modelHorseProject.entity.Model;
-import com.klasavchik.modelHorseProject.mapper.HorseMapper;
+import com.klasavchik.modelHorseProject.mapper.ModelMapper;
 import com.klasavchik.modelHorseProject.repository.CollectionRepository;
 import com.klasavchik.modelHorseProject.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,29 +20,30 @@ import java.util.List;
 public class CollectionService {
 
     private final CollectionRepository collectionRepository;
-    private final HorseMapper horseMapper;
+    private final ModelMapper modelMapper;
 
-    private final HorseMapper mapper = new HorseMapper();
+    private final ModelMapper mapper = new ModelMapper();
     private final UserRepository userRepository;
 
     @Transactional
-    public void addHorse(Long id, CreateHorseRequest horseModel) {
-        Model entity = horseMapper.toEntity(horseModel);
+    public void addModel(Long id, CreateModelRequest Model) {
+        Model entity = modelMapper.toEntity(Model);
         entity.setReleaseDate(LocalDateTime.now());
         entity.setOwner(userRepository.findById(id).get());
         collectionRepository.save(entity);
     }
 
     @Transactional
-    public List<HorseModelListRequest> getCollection(Long id) {
-        return   collectionRepository.findAllByOwnerWithMedia(id)
+    public List<ModelListRequest> getCollection(Long id) {
+        List<Model> allByOwnerWithMedia = collectionRepository.findAllByOwnerWithMedia(id);
+        return collectionRepository.findAllByOwnerWithMedia(id)
                 .stream()
                 .sorted(Comparator.comparing(Model::getReleaseDate, Comparator.reverseOrder()))
                 .map(mapper::toDto)
                 .toList();
     }
 
-    public HorseModelResponse getHorse(Long horseId) {
-        return horseMapper.toHorseModelResponse(collectionRepository.findByIdWithMedia(horseId).get());
+    public ModelResponse getModel(Long modelId, Long id) {
+        return modelMapper.toModelResponse(collectionRepository.findByIdWithMedia(modelId).get());
     }
 }

@@ -3,24 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Регистрация - Коллекция статуэток лошадей</title>
+    <title>Вход - Коллекция статуэток лошадей</title>
     <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
 <div class="header">
-    <div class="profile-name">Регистрация</div>
+    <div class="profile-name">Вход</div>
 </div>
 
-<div class="section register-form">
-    <form id="register-form">
-        <div class="form-group">
-            <label for="firstName">Имя:</label>
-            <input type="text" id="firstName" name="firstName" required>
-        </div>
-        <div class="form-group">
-            <label for="lastName">Фамилия:</label>
-            <input type="text" id="lastName" name="lastName" required>
-        </div>
+<div class="section login-form">
+    <form id="login-form">
         <div class="form-group">
             <label for="email">Email:</label>
             <input type="email" id="email" name="email" required>
@@ -29,7 +21,7 @@
             <label for="password">Пароль:</label>
             <input type="password" id="password" name="password" required>
         </div>
-        <button type="submit" class="button register-button">Зарегистрироваться</button>
+        <button type="submit" class="button login-button">Войти</button>
         <div id="message" class="message"></div>
     </form>
 </div>
@@ -42,6 +34,6 @@
     <div class="nav-icon">👤</div>
 </div>
 
-<script src="/register-script.js"></script>
+<script src="/script/login-script.js"></script>
 </body>
 </html>

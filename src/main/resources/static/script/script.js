@@ -6,7 +6,7 @@ const roles = JSON.parse(localStorage.getItem('roles')) || [];
 
 if (!userId) {
     alert('Вы не вошли в систему! Пожалуйста, войдите.');
-    window.location.href = '/login.html';
+    window.location.href = '/page/login.html';
 }
 
 function loadProfile() {
@@ -46,7 +46,7 @@ function loadProfile() {
                 localStorage.removeItem('token');
                 localStorage.removeItem('userId');
                 localStorage.removeItem('roles');
-                window.location.href = '/login.html';
+                window.location.href = '/page/login.html';
             }
         });
 
@@ -60,18 +60,18 @@ function loadProfile() {
             if (!response.ok) throw new Error('Не удалось загрузить коллекцию');
             return response.json();
         })
-        .then(horses => {
-            horses.sort((a, b) => new Date(b.releaseDate) - new Date(a.releaseDate));
+        .then(models => {
+            models.sort((a, b) => new Date(b.releaseDate) - new Date(a.releaseDate));
             const grid = document.querySelector('.grid');
             grid.innerHTML = '';
-            horses.forEach(horse => {
+            models.forEach(model => {
                 const card = document.createElement('div');
                 card.className = 'card';
-                card.style.backgroundImage = `url(${horse.avatar || 'placeholder-horse.jpg'})`;
-                card.onclick = () => showDetails(horse.id);
+                card.style.backgroundImage = `url(${model.avatar || 'placeholder-model.jpg'})`;
+                card.onclick = () => showDetails(model.id);
                 grid.appendChild(card);
             });
-            document.querySelector('.stat-figurines .stat-value').textContent = horses.length;
+            document.querySelector('.stat-figurines .stat-value').textContent = models.length;
             document.querySelector('.stat-collecting .stat-value').textContent = 0;
             document.querySelector('.stat-members .stat-value').textContent = 0;
         })
@@ -82,13 +82,13 @@ function loadProfile() {
                 localStorage.removeItem('token');
                 localStorage.removeItem('userId');
                 localStorage.removeItem('roles');
-                window.location.href = '/login.html';
+                window.location.href = '/page/login.html';
             }
         });
 }
 
 function showDetails(id) {
-    window.location.href = `/horse-details.html?horseId=${id}`;
+    window.location.href = `/page/model-details.html?modelId=${id}`;
 }
 
 function addFigurine() {
@@ -96,7 +96,7 @@ function addFigurine() {
         alert('Ты можешь добавлять только в свою коллекцию!');
         return;
     }
-    window.location.href = '/add-horse.html';
+    window.location.href = '../page/add-model.html';
 }
 
 function editDetails() {
@@ -137,7 +137,7 @@ function editDetails() {
                     localStorage.removeItem('token');
                     localStorage.removeItem('userId');
                     localStorage.removeItem('roles');
-                    window.location.href = '/login.html';
+                    window.location.href = '/page/login.html';
                 }
             });
     }
@@ -147,7 +147,7 @@ function logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('userId');
     localStorage.removeItem('roles');
-    window.location.href = '/login.html';
+    window.location.href = '/page/login.html';
 }
 
 window.onload = loadProfile;

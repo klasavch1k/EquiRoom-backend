@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Builder
 
 @Entity
-public class HorseModelMedia {
+public class ModelMedia {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -22,6 +22,6 @@ public class HorseModelMedia {
     private LocalDateTime dateUpdate;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "horse_model_id")
+    @JoinColumn(name = "model_id")
     private Model model;
 }
