@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Детали статуэтки лошади</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<div class="container">
+    <h2>Детали статуэтки</h2>
+    <div class="horse-details">
+        <div class="horse-image" id="horse-image"></div>
+        <div class="form-group">
+            <label>Имя лошади</label>
+            <p id="horse-name">Загрузка...</p>
+        </div>
+        <div class="form-group">
+            <label>Порода</label>
+            <p id="horse-breed">Загрузка...</p>
+        </div>
+        <div class="form-group">
+            <label>Описание</label>
+            <p id="horse-description">Загрузка...</p>
+        </div>
+        <div class="form-group">
+            <label>Имя мастера</label>
+            <p id="horse-masterName">Загрузка...</p>
+        </div>
+        <div class="form-group">
+            <label>Дата создания</label>
+            <p id="horse-releaseDate">Загрузка...</p>
+        </div>
+        <div id="message" class="message"></div>
+    </div>
+</div>
+
+<div class="bottom-nav">
+    <div class="nav-icon home-icon" onclick="navigate('home')">🏠</div>
+    <div class="nav-icon search-icon" onclick="navigate('search')">🔍</div>
+    <div class="nav-plus" onclick="navigate('add')">+</div>
+    <div class="nav-icon chat-icon" onclick="navigate('chat')">💬</div>
+    <div class="nav-icon profile-icon" onclick="navigate('profile')">👤</div>
+</div>
+
+<script src="/horse-details.js"></script>
+<script src="/nav.js"></script>
+</body>
+</html>

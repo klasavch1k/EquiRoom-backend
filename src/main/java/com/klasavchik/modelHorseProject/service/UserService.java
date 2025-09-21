@@ -21,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -93,7 +92,7 @@ public class UserService {
         User user = userRepository.findByIdWithProfileAndRoles(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         // Инициализируем коллекцию для избежания LazyInitializationException
-        Hibernate.initialize(user.getHorseModelsOwn());
+        Hibernate.initialize(user.getModelsOwn());
         return userMapper.toProfileDTO(user);
     }
     public JwtResponse login(CreateUserRequest userDto) {

@@ -4,7 +4,6 @@ import com.klasavchik.modelHorseProject.dto.*;
 import com.klasavchik.modelHorseProject.entity.Profile;
 import com.klasavchik.modelHorseProject.entity.User;
 import com.klasavchik.modelHorseProject.entity.UserRole;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -40,7 +39,7 @@ public class UserMapper {
                 .firstName(user.getProfile().getFirstName())
                 .lastName(user.getProfile().getLastName())
                 .nickName(user.getProfile().getNickName()) // Используем как отображаемое имя
-                .figurinesCount((int) user.getHorseModelsOwn().size()) // Кол-во фигурок
+                .figurinesCount((int) user.getModelsOwn().size()) // Кол-во фигурок
                 .collectingCount(0) // Заглушка, замени логикой
                 .membersCount(0) // Заглушка, замени логикой
                 .build();

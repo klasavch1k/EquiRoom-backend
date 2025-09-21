@@ -44,10 +44,10 @@ public class User{
     private Profile profile;
 
     @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY)
-    private List<HorseModel> horseModelsOwn = new ArrayList<>();
+    private List<Model> modelsOwn = new ArrayList<>();
 
     @OneToMany(mappedBy = "master")
-    private Set<HorseModel> horseModelsSetMade = new HashSet<>();
+    private Set<Model> modelsSetMade = new HashSet<>();
 
     public void addRole(Role role) {
         UserRole userRole = new UserRole();

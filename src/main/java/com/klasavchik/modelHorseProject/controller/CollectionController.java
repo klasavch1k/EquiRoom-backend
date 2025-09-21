@@ -2,14 +2,14 @@ package com.klasavchik.modelHorseProject.controller;
 
 import com.klasavchik.modelHorseProject.dto.CreateHorseRequest;
 import com.klasavchik.modelHorseProject.dto.HorseModelListRequest;
-import com.klasavchik.modelHorseProject.entity.HorseModel;
+import com.klasavchik.modelHorseProject.dto.HorseModelResponse;
 import com.klasavchik.modelHorseProject.security.JwtUtil;
 import com.klasavchik.modelHorseProject.service.CollectionService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collection;
 import java.util.List;
 
 @RestController
@@ -20,10 +20,12 @@ public class CollectionController {
     private final JwtUtil jwtUtil;
 
     @GetMapping
+    @ResponseStatus(HttpStatus.OK)
     public List<HorseModelListRequest> getCollection(@PathVariable Long id) {
         return collectionService.getCollection(id);
     }
     @PostMapping("/addHorse")
+    @ResponseStatus(HttpStatus.CREATED)
     public void addHorse(@PathVariable Long id, @RequestBody CreateHorseRequest horseDto) {
         String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
         Long currentUserId = jwtUtil.extractUserId(token);
@@ -35,4 +37,10 @@ public class CollectionController {
         }
         collectionService.addHorse(id, horseDto);
     }
+    @GetMapping("/{horseId}")
+    @ResponseStatus(HttpStatus.OK)
+    public HorseModelResponse getHorse(@PathVariable Long horseId) {
+        return collectionService.getHorse(horseId);
+    }
+
 }

@@ -2,30 +2,26 @@ package com.klasavchik.modelHorseProject.mapper;
 
 import com.klasavchik.modelHorseProject.dto.CreateHorseRequest;
 import com.klasavchik.modelHorseProject.dto.HorseModelListRequest;
-import com.klasavchik.modelHorseProject.dto.HorseModelMediaRequest;
-import com.klasavchik.modelHorseProject.entity.HorseModel;
+import com.klasavchik.modelHorseProject.dto.HorseModelResponse;
+import com.klasavchik.modelHorseProject.entity.Model;
 import com.klasavchik.modelHorseProject.entity.HorseModelMedia;
-import org.hibernate.query.spi.HqlInterpretation;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Stream;
 
 @Component
 public class HorseMapper {
-    public HorseModelListRequest toDto(HorseModel horseModel){
+    public HorseModelListRequest toDto(Model model){
         return HorseModelListRequest.builder()
-                .id(horseModel.getId())
-                .name(horseModel.getName())
-                .breed(horseModel.getBreed())
-                .avatar(horseModel.getHorseModelMedia().get(0).getImageLink())
+                .id(model.getId())
+                .name(model.getName())
+                .breed(model.getBreed())
+                .avatar(model.getHorseModelMedia().get(0).getImageLink())
                 .build();
     }
-    public HorseModel toEntity(CreateHorseRequest dto){
-        HorseModel model = HorseModel.builder()
+    public Model toEntity(CreateHorseRequest dto){
+        Model model = Model.builder()
                 .name(dto.getName())
                 .breed(dto.getBreed())
                 .description(dto.getDescription())
@@ -36,11 +32,23 @@ public class HorseMapper {
                 .map(m -> HorseModelMedia.builder()
                         .dateUpdate(LocalDateTime.now())
                         .imageLink(m.getLink())
-                        .horseModel(model)
+                        .model(model)
                         .build())
                 .toList();
         model.setHorseModelMedia(mediaList);
         return model;
-
+    }
+    public HorseModelResponse toHorseModelResponse(Model model){
+        return HorseModelResponse.builder()
+                .id(model.getId())
+                .name(model.getName())
+                .breed(model.getBreed())
+                .description(model.getDescription())
+                .masterName(model.getMasterName())
+                .avatar(model.getHorseModelMedia().get(0).getImageLink())
+//                .master(horseModel.getMaster())
+                .releaseDate(model.getReleaseDate())
+//                .horseModelMedia(horseModel.getHorseModelMedia())
+                .build();
     }
 }

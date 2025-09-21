@@ -23,5 +23,5 @@ public class HorseModelMedia {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "horse_model_id")
-    private HorseModel horseModel;
+    private Model model;
 }
