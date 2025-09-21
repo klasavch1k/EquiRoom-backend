@@ -19,18 +19,30 @@ document.getElementById('register-form').addEventListener('submit', function(eve
         body: JSON.stringify(requestData)
     })
         .then(response => {
-            if (!response.ok) throw new Error('Ошибка регистрации: ' + response.status);
+            if (!response.ok) throw new Error('Ошибка регистрации: ' + response.statusText);
             return response.json();
         })
         .then(data => {
-            // Сохраняем userId в localStorage
-            localStorage.setItem('userId', data.userId);
-            document.getElementById('message').textContent = data.message;
-            document.getElementById('register-form').reset();
-            // Редирект на страницу профиля с userId
-            setTimeout(() => {
-                window.location.href = `/index.html?userId=${data.userId}`;
-            }, 1000);
+            // После регистрации сразу логинимся
+            fetch('/api/v1/user/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: requestData.email, password: requestData.password })
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error('Ошибка входа после регистрации');
+                    return response.json();
+                })
+                .then(loginData => {
+                    localStorage.setItem('token', loginData.token);
+                    localStorage.setItem('userId', loginData.userId);
+                    localStorage.setItem('roles', JSON.stringify(loginData.roles));
+                    document.getElementById('message').textContent = data.message;
+                    document.getElementById('register-form').reset();
+                    setTimeout(() => {
+                        window.location.href = `/index.html?userId=${loginData.userId}`;
+                    }, 1000);
+                });
         })
         .catch(error => {
             document.getElementById('message').textContent = error.message;

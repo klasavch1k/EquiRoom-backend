@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -28,7 +29,13 @@ public class JwtUtil {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
-
+    public Long extractUserId(String token) {
+        return Long.valueOf(extractClaim(token, claims -> claims.get("userId", String.class)));
+    }
+    // Извлечение ролей
+    public List<String> extractRoles(String token) {
+        return extractClaim(token, claims -> claims.get("roles", List.class));
+    }
     // Получение всех данных из токена
     private Claims extractAllClaims(String token) {
         return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
@@ -39,11 +46,14 @@ public class JwtUtil {
         return extractClaim(token, Claims::getExpiration).before(new Date());
     }
 
-    // Генерация токена для UserDetails
-    public String generateToken(UserDetails userDetails) {
+    // Генерация токена с ролями
+    public String generateToken(UserDetails userDetails, Long userId, List<String> roles) {
         Map<String, Object> claims = new HashMap<>();
+        claims.put("userId", userId.toString());
+        claims.put("roles", roles);
         return createToken(claims, userDetails.getUsername());
     }
+
 
     // Создание токена с данными
     private String createToken(Map<String, Object> claims, String subject) {

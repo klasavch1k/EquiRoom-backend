@@ -10,10 +10,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import com.klasavchik.modelHorseProject.security.JwtUtil;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -34,54 +36,42 @@ public class UserController {
     public UserProfileDTO getUser(@PathVariable("id") Long id) {
         return userService.getUserProfile(id);
     }
-    //    создаёт юзера
-//    @PostMapping("/register")
-//    @ResponseStatus(HttpStatus.CREATED)
-//    public String createUser(@RequestBody CreateUserRequest userDto) {
-//        return userService.create(userDto);
-//    }
 
     // Создаёт юзера
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public RegisterResponse createUser(@RequestBody CreateUserRequest userDto) {
         String message = userService.create(userDto);
-        // Предполагаем, что create возвращает userId в случае успеха
         Long userId = userService.getUserByEmail(userDto.getEmail())
                 .map(User::getId)
                 .orElseThrow(() -> new RuntimeException("Failed to retrieve user ID"));
         return new RegisterResponse(userId, message);
     }
-    //логинация и безопасность
-//    @PostMapping("/login")
-//    public ResponseEntity<?> login(@RequestBody CreateUserRequest userDto) {
-//        Authentication authentication = authenticationManager.authenticate(
-//                new UsernamePasswordAuthenticationToken(userDto.getEmail(), userDto.getPassword())
-//        );
-//        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-//        String jwt = jwtUtil.generateToken(userDetails);
-//        return ResponseEntity.ok(new JwtResponse(jwt)); // Новый класс JwtResponse
-//    }
 
     // Логинация и безопасность
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody CreateUserRequest userDto) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(userDto.getEmail(), userDto.getPassword())
-        );
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        String jwt = jwtUtil.generateToken(userDetails);
-        // Получаем userId из базы по email
-        Long userId = userService.getUserByEmail(userDto.getEmail())
-                .map(User::getId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        return ResponseEntity.ok(new JwtResponse(jwt, userId));
+        try {
+            JwtResponse jwtResponse = userService.login(userDto);
+            return ResponseEntity.ok(jwtResponse);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+        }
     }
 
-    //обновляет юзера
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
-    public User update(@RequestBody UpdateUserRequest userDto){
+    public User update(@RequestBody UpdateUserRequest userDto) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Long currentUserId = (Long) auth.getDetails();
+        List<String> roles = auth.getAuthorities().stream()
+                .map(Object::toString)
+                .toList();
+
+        if (!roles.contains("ROLE_ADMIN") && !userDto.getId().equals(currentUserId)) {
+            throw new RuntimeException("Access denied: You can only edit your own profile");
+        }
+
         return userService.update(userDto);
     }
 
@@ -94,6 +84,5 @@ public class UserController {
 
 
 }
-record JwtResponse(String token, Long userId) {
-}
+
 

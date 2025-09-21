@@ -44,6 +44,26 @@ body {
     font-style: italic;
 }
 
+.logout-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 22px;
+    background-color: #8b4513; /* Такой же цвет, как у edit-button */
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.logout-button:hover {
+    background-color: #6b4c2e; /* Темнее, как у других кнопок */
+    transform: scale(1.03);
+}
+
 .stats {
     display: flex;
     justify-content: space-around;
