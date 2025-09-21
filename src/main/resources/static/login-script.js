@@ -19,13 +19,13 @@ document.getElementById('login-form').addEventListener('submit', function(event)
             return response.json();
         })
         .then(data => {
-            // Сохраняем токен в localStorage
+            // Сохраняем токен и userId в localStorage
             localStorage.setItem('token', data.token);
+            localStorage.setItem('userId', data.userId);
             document.getElementById('message').textContent = 'Вход успешен!';
-
-            // Временный redirect (пока хардкод userId)
+            // Редирект на страницу профиля с userId
             setTimeout(() => {
-                window.location.href = '/index.html?userId=1';
+                window.location.href = `/index.html?userId=${data.userId}`;
             }, 1000);
         })
         .catch(error => {

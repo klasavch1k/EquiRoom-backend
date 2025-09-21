@@ -1,6 +1,5 @@
-// Обработка формы регистрации
 document.getElementById('register-form').addEventListener('submit', function(event) {
-    event.preventDefault(); // Предотвращаем перезагрузку страницы
+    event.preventDefault();
 
     const firstName = document.getElementById('firstName').value;
     const lastName = document.getElementById('lastName').value;
@@ -21,13 +20,16 @@ document.getElementById('register-form').addEventListener('submit', function(eve
     })
         .then(response => {
             if (!response.ok) throw new Error('Ошибка регистрации: ' + response.status);
-            return response.text();
+            return response.json();
         })
-        .then(message => {
-            document.getElementById('message').textContent = message; // Показываем сообщение от сервера
-            document.getElementById('register-form').reset(); // Очищаем форму
+        .then(data => {
+            // Сохраняем userId в localStorage
+            localStorage.setItem('userId', data.userId);
+            document.getElementById('message').textContent = data.message;
+            document.getElementById('register-form').reset();
+            // Редирект на страницу профиля с userId
             setTimeout(() => {
-                window.location.href = '/index.html?userId=1'; // Перенаправляем на профиль (временный ID)
+                window.location.href = `/index.html?userId=${data.userId}`;
             }, 1000);
         })
         .catch(error => {

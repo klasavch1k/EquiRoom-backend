@@ -1,11 +1,18 @@
-// Парсим userId из URL (например, profile.html?userId=3)
+// Парсим userId из URL или берём из localStorage
 const urlParams = new URLSearchParams(window.location.search);
-let userId = urlParams.get('userId') || 1; // Fallback на 1, если не указан
-const myUserId = 1; // Текущий юзер (из auth, пока заглушка)
+let userId = urlParams.get('userId') || localStorage.getItem('userId') || null;
+const myUserId = localStorage.getItem('userId') || null; // Текущий юзер из localStorage
+
+if (!userId) {
+    alert('Пользователь не авторизован!');
+    window.location.href = '/login.html';
+}
 
 function loadProfile() {
     // Загружаем профиль
-    fetch(`/api/v1/user/${userId}`)
+    fetch(`/api/v1/user/${userId}`, {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+    })
         .then(response => {
             if (!response.ok) throw new Error('Ошибка загрузки профиля');
             return response.json();
@@ -14,10 +21,15 @@ function loadProfile() {
             document.querySelector('.profile-name').textContent = `${profile.firstName} ${profile.lastName}` || 'Unknown';
             document.querySelector('.profile-pic').style.backgroundImage = `url(${profile.nickName || 'placeholder-profile-pic.jpg'})`;
         })
-        .catch(error => console.error('Ошибка профиля:', error));
+        .catch(error => {
+            console.error('Ошибка профиля:', error);
+            alert('Ошибка загрузки профиля: ' + error.message);
+        });
 
     // Загружаем коллекцию
-    fetch(`/api/v1/users/${userId}/collection`)
+    fetch(`/api/v1/users/${userId}/collection`, {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+    })
         .then(response => {
             if (!response.ok) throw new Error('Ошибка загрузки коллекции');
             return response.json();
@@ -32,9 +44,8 @@ function loadProfile() {
                 card.onclick = () => showDetails(horse.id);
                 grid.appendChild(card);
             });
-            // Обновляем статистику фигурок на основе длины коллекции
+            // Обновляем статистику фигурок
             document.querySelector('.stat-figurines .stat-value').textContent = horses.length;
-            // Заглушки для других статистик
             document.querySelector('.stat-collecting .stat-value').textContent = 0;
             document.querySelector('.stat-members .stat-value').textContent = 0;
         })
@@ -43,9 +54,9 @@ function loadProfile() {
 
 window.onload = loadProfile;
 
-// Добавление фигурки (только для своего профиля)
+// Добавление фигурки
 function addFigurine() {
-    if (userId != myUserId) {
+    if (userId !== myUserId) {
         alert('Ты можешь добавлять только в свою коллекцию!');
         return;
     }
@@ -59,7 +70,10 @@ function addFigurine() {
         const request = { name, breed, description, masterName, media: [{ link: mediaLink }] };
         fetch(`/api/v1/users/${userId}/collection/addHorse`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
             body: JSON.stringify(request)
         })
             .then(response => {
@@ -72,7 +86,7 @@ function addFigurine() {
 }
 
 function editDetails() {
-    if (userId != myUserId) {
+    if (userId !== myUserId) {
         alert('Редактировать можно только свой профиль!');
         return;
     }
@@ -84,9 +98,12 @@ function editDetails() {
         if (firstName) dto.firstName = firstName;
         if (lastName) dto.lastName = lastName;
         if (nickName) dto.nickName = nickName;
-        fetch(`/api/v1/user/${userId}`, {
+        fetch(`/api/v1/user`, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
             body: JSON.stringify(dto)
         })
             .then(response => {

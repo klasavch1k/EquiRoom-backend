@@ -61,6 +61,10 @@ public class UserService {
             return "User created: " + user.getEmail();
         }
     }
+    // Новый метод для получения пользователя по email
+    public Optional<User> getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
 
     @Transactional
     public User update(UpdateUserRequest dto) {
