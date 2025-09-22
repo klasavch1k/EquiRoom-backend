@@ -3,6 +3,7 @@ package com.klasavchik.modelHorseProject.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -16,8 +17,10 @@ import java.util.function.Function;
 public class JwtUtil {
 
     // Секретный ключ (в реальном приложении храни в переменных окружения)
-    private static final String SECRET_KEY = "ThinkAboutThisManIDidRealGoodProjectFUUUCKIHateProgrammer"; // Замени на сложный ключ
-    private static final long JWT_TOKEN_VALIDITY = 5 * 60 * 60; // 5 часов в секундах
+    @Value("${jwt.secret}")
+    private static String SECRET_KEY;
+    @Value("${jwt.validity}")
+    private static long JWT_TOKEN_VALIDITY;
 
     // Извлечение email из токена
     public String extractUsername(String token) {
