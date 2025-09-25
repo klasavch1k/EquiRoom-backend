@@ -9,5 +9,5 @@ public class ModelListRequest {
     private Long id;
     private String name;
     private String breed; // порода лошади
-    private String avatar;
+    private String image;
 }

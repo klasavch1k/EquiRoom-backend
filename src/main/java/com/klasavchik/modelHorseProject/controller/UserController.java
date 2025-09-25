@@ -16,7 +16,7 @@ import com.klasavchik.modelHorseProject.security.JwtUtil;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/v1/user")

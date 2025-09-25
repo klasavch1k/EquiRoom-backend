@@ -17,7 +17,7 @@ public class ModelMapper {
                 .id(model.getId())
                 .name(model.getName())
                 .breed(model.getBreed())
-                .avatar(model.getModelMedia().get(0).getImageLink())
+                .image(model.getModelMedia().get(0).getImageLink())
                 .build();
     }
     public Model toEntity(CreateModelRequest dto){

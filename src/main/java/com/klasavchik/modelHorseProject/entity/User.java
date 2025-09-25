@@ -1,10 +1,7 @@
 package com.klasavchik.modelHorseProject.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -17,6 +14,8 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString(exclude = {"modelsOwn","modelsSetMade","userRoles"})
+@EqualsAndHashCode(exclude = {"modelsOwn","modelsSetMade","userRoles"})
 
 @Entity
 @Table(name = "users")
@@ -29,8 +28,6 @@ public class User{
 
     private String email;
     private String password;
-    //private Status status; // статус акаунта, забанен, подтверждён, не подтверждён
-
     @Builder.Default
     @OneToMany(mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<UserRole> userRoles = new ArrayList<>();

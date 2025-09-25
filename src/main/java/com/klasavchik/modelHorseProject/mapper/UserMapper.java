@@ -38,10 +38,11 @@ public class UserMapper {
                 .id(user.getId())
                 .firstName(user.getProfile().getFirstName())
                 .lastName(user.getProfile().getLastName())
-                .nickName(user.getProfile().getNickName()) // Используем как отображаемое имя
-                .modelsCount((int) user.getModelsOwn().size()) // Кол-во фигурок
-                .collectingCount(0) // Заглушка, замени логикой
-                .membersCount(0) // Заглушка, замени логикой
+                .userName(user.getProfile().getNickName()) // Используем как отображаемое имя
+                .figurines((int) user.getModelsOwn().size()) // Кол-во фигурок
+                .followers(10)
+                .following(10)
+                .avatar(user.getProfile().getAvatar())// Заглушка, замени логикой
                 .build();
     }
     public UserResponse toUserResponse(User user) {

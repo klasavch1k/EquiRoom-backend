@@ -17,10 +17,10 @@ import java.util.function.Function;
 public class JwtUtil {
 
     // Секретный ключ (в реальном приложении храни в переменных окружения)
-    @Value("${jwt.secret}")
-    private static String SECRET_KEY;
-    @Value("${jwt.validity}")
-    private static long JWT_TOKEN_VALIDITY;
+    @Value("${spring.security.jwt.secret}")
+    private String SECRET_KEY;
+    @Value("${spring.security.jwt.validity}")
+    private long JWT_TOKEN_VALIDITY;
 
     // Извлечение email из токена
     public String extractUsername(String token) {
