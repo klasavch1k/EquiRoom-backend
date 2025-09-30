@@ -9,9 +9,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@ToString(exclude = "userRole")
-@EqualsAndHashCode(exclude = "userRole")
-
 @Entity
 public class Role {
     @Id
@@ -19,6 +16,4 @@ public class Role {
     private Integer roleId;
     private String roleName;
 
-//    @OneToMany(mappedBy = "role", orphanRemoval = true)
-//    private List<UserRole> userRole;
 }

@@ -18,10 +18,18 @@ public class ModelMedia {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String imageLink;
-    private LocalDateTime dateUpdate;
+    private String url;
+
+    @Enumerated(EnumType.STRING)
+    private MediaType mediaType;
+    private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "model_id")
     private Model model;
+
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = LocalDateTime.now();
+    }
 }

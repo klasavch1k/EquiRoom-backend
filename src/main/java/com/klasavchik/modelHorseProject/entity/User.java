@@ -25,13 +25,12 @@ public class User{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String email;
     private String password;
+
     @Builder.Default
     @OneToMany(mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<UserRole> userRoles = new ArrayList<>();
-
     private LocalDate createdAt;
     private boolean isOnline;
     private LocalDateTime lastLoginAt; //последнее время онлайна
@@ -42,10 +41,6 @@ public class User{
 
     @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY)
     private List<Model> modelsOwn = new ArrayList<>();
-
-    @OneToMany(mappedBy = "master")
-    @Builder.Default
-    private List<Model> modelsSetMade = new ArrayList<Model>();
 
     public void addRole(Role role) {
         UserRole userRole = new UserRole();

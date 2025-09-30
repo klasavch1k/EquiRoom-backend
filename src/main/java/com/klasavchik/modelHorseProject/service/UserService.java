@@ -89,12 +89,11 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public UserProfileDTO getUserProfile(Long id) {
-        User user = userRepository.findByIdWithProfileAndRoles(id)
+        User user = userRepository.findByIdWithProfileRolesAndModels(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        // Инициализируем коллекцию для избежания LazyInitializationException
-        Hibernate.initialize(user.getModelsOwn());
         return userMapper.toProfileDTO(user);
     }
+
     public JwtResponse login(CreateUserRequest userDto) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(userDto.getEmail(), userDto.getPassword())
