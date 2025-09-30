@@ -17,9 +17,15 @@ public interface ModelRepository extends JpaRepository<Model, Long> {
             "WHERE m.owner.id = :ownerId")
     public List<CardModelResponse> findAllCardsByOwnerId(Long ownerId);
 
-    @Query("SELECT m FROM Model m " +
-            "LEFT JOIN FETCH m.modelMedia " +
-            "LEFT JOIN FETCH m.rewards " +
-            "WHERE m.id = :id")
+//    @Query("SELECT m FROM Model m " +
+//            "LEFT JOIN FETCH m.modelMedia " +
+//            "LEFT JOIN FETCH m.rewards " +
+//            "WHERE m.id = :id")
+@Query("SELECT m FROM Model m " +
+        "LEFT JOIN FETCH m.modelMedia " +
+        "LEFT JOIN FETCH m.rewards " +
+        "LEFT JOIN FETCH m.owner o " +
+        "LEFT JOIN FETCH o.profile p " +
+        "WHERE m.id = :id")
     Optional<Model> findModelWithDetails(@Param("id") Long id);
 }

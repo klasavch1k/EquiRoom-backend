@@ -94,6 +94,7 @@ public class UserService {
         return userMapper.toProfileDTO(user);
     }
 
+    @Transactional(readOnly = true)
     public JwtResponse login(CreateUserRequest userDto) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(userDto.getEmail(), userDto.getPassword())

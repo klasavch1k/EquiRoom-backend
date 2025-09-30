@@ -5,7 +5,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Builder
 @Data
@@ -14,6 +16,7 @@ import java.util.List;
 
 // дто создания модели или обновления
 public class CreateModelRequest {
+    private Long ownerId;// тут не реализованная проблема!!!!!!!!!!!!
     private String name;               // Название лошади
     private String avatar;             // Основной аватар лошади
     private String breed;              // Порода
@@ -23,6 +26,8 @@ public class CreateModelRequest {
     private String artMasterName;      // Автор росписи
     private Integer yearOfPainting;    // Год росписи
 
-    private List<ModelMediaRequest> modelMedia; // Фото/видео
-    private List<RewardRequest> rewards;       // Награды
+    @Builder.Default
+    private Set<ModelMediaRequest> modelMedia = new HashSet<>(); // Фото/видео
+    @Builder.Default
+    private Set<RewardRequest> rewards = new HashSet<>();       // Награды
 }

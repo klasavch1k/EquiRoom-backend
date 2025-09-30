@@ -6,6 +6,8 @@ import com.klasavchik.modelHorseProject.entity.User;
 import com.klasavchik.modelHorseProject.entity.UserRole;
 import org.springframework.stereotype.Component;
 
+import java.util.stream.Collectors;
+
 @Component
 public class UserMapper {
     //мапит CreateUserRequest в User
@@ -16,6 +18,7 @@ public class UserMapper {
                 .build();
         return User.builder()
                 .profile(profile)
+                .password(userDto.getPassword())
                 .email(userDto.getEmail())
                 .build();
     }
@@ -55,7 +58,7 @@ public class UserMapper {
     }
     public UserAuthDto toUserAuthDto(User user) {
         return UserAuthDto.builder()
-                .userRoles(user.getUserRoles().stream().map(UserRole::getRole).toList())
+                .userRoles(user.getUserRoles().stream().map(UserRole::getRole).collect(Collectors.toSet()))
                 .email(user.getEmail())
                 .password(user.getPassword())
                 .build();

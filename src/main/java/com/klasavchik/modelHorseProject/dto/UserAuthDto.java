@@ -6,7 +6,9 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @Builder
@@ -15,5 +17,5 @@ public class UserAuthDto {
     private String password;
 
     @Builder.Default
-    private List<Role> userRoles = new ArrayList<>();
+    private Set<Role> userRoles = new HashSet<>();
 }

@@ -30,7 +30,7 @@ public class User{
 
     @Builder.Default
     @OneToMany(mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<UserRole> userRoles = new ArrayList<>();
+    private Set<UserRole> userRoles = new HashSet<>();
     private LocalDate createdAt;
     private boolean isOnline;
     private LocalDateTime lastLoginAt; //последнее время онлайна
@@ -40,7 +40,7 @@ public class User{
     private Profile profile;
 
     @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY)
-    private List<Model> modelsOwn = new ArrayList<>();
+    private Set<Model> modelsOwn = new HashSet<>();
 
     public void addRole(Role role) {
         UserRole userRole = new UserRole();

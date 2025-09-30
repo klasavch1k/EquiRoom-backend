@@ -7,6 +7,8 @@ import com.klasavchik.modelHorseProject.newDto.model.*;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 public class ModelMapper {
@@ -21,7 +23,8 @@ public class ModelMapper {
                 .build();
     }
     public DetailModelResponse toDetailModelResponse(Model model){
-        return DetailModelResponse.builder()
+        DetailModelResponse dto = DetailModelResponse.builder()
+                .owner(model.getOwner().getProfile().getFirstName()+" "+model.getOwner().getProfile().getLastName())
                 .id(model.getId())
                 .name(model.getName())
                 .avatar(model.getAvatar())
@@ -42,8 +45,8 @@ public class ModelMapper {
                                         m.getMediaType(),
                                         m.getCreatedAt()
                                 ))
-                                .toList()
-                                : List.of()
+                                .collect(Collectors.toSet())
+                                : Set.of()
                 )
                 .rewards(
                         model.getRewards() != null
@@ -55,10 +58,11 @@ public class ModelMapper {
                                         r.getYear(),
                                         r.getAvatar()
                                 ))
-                                .toList()
-                                : List.of()
+                                .collect(Collectors.toSet())
+                                : Set.of()
                 )
                 .build();
+        return dto;
     }
     public Model toEntity(CreateModelRequest createModelRequest) {
         Model model = Model.builder()
@@ -78,7 +82,7 @@ public class ModelMapper {
                             .mediaType(m.getMediaType())
                             .model(model)
                             .build())
-                    .toList());
+                    .collect(Collectors.toSet()));
         }
         if (createModelRequest.getRewards() != null) {
             model.setRewards(createModelRequest.getRewards().stream()
@@ -89,7 +93,7 @@ public class ModelMapper {
                             .avatar(r.getAvatar())
                             .model(model)
                             .build())
-                    .toList());
+                    .collect(Collectors.toSet()));
         }
         return model;
     }

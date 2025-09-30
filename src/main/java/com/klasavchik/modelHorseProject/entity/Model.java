@@ -8,7 +8,9 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -35,11 +37,11 @@ public class Model {
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "model")
     @Builder.Default
-    private List<ModelMedia> modelMedia = new ArrayList<>(); //фото/видео лошади
+    private Set<ModelMedia> modelMedia = new HashSet<>(); //фото/видео лошади
 
     @Builder.Default
     @OneToMany(mappedBy = "model", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Reward> rewards = new ArrayList<>();
+    private Set<Reward> rewards = new HashSet<>();
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

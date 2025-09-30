@@ -6,7 +6,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Builder
 @Data
@@ -16,6 +18,7 @@ import java.util.List;
 // возвращает подробную информацию о модели
 public class DetailModelResponse {
     private Long id;
+    private String owner;
     private String name;
     private String avatar;
     private String breed;
@@ -26,6 +29,8 @@ public class DetailModelResponse {
     private Integer yearOfPainting;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private List<MediaDto> media;
-    private List<RewardDto> rewards;
+    @Builder.Default
+    private Set<MediaDto> media = new HashSet<>();
+    @Builder.Default
+    private Set<RewardDto> rewards = new HashSet<>();
 }
