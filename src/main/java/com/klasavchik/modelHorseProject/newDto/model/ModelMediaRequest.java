@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 
 // не используется напрямую, нужен для создания модели
 public class ModelMediaRequest {
+    private Long id;                 // новый
     private String url;           // ссылка на фото/видео
     private MediaType mediaType;  // IMAGE или VIDEO
 }

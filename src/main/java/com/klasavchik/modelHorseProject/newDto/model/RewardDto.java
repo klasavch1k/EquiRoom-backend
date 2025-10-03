@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 // не используется на прямую, нужен для детпльного возврата информации о модели
 public class RewardDto {
-    private Integer id;
+    private Long id;
     private String rewardName;
     private String organizationName;
     private Integer year;

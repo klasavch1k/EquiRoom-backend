@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 public class Reward {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
     private String rewardName;
     private String organizationName;
     private Integer year;

@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 
 // не используется напрямую, нужен для создания модели
 public class RewardRequest {
+    private Long id;                 // новый
     private String rewardName;        // Название награды
     private String organizationName;  // Организация
     private Integer year;             // Год

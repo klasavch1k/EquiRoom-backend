@@ -3,6 +3,7 @@ package com.klasavchik.modelHorseProject.mapper;
 import com.klasavchik.modelHorseProject.entity.Model;
 import com.klasavchik.modelHorseProject.entity.ModelMedia;
 import com.klasavchik.modelHorseProject.entity.Reward;
+import com.klasavchik.modelHorseProject.entity.User;
 import com.klasavchik.modelHorseProject.newDto.model.*;
 import com.klasavchik.modelHorseProject.repository.ModelRepository;
 import com.klasavchik.modelHorseProject.repository.UserRepository;
@@ -75,8 +76,7 @@ public class ModelMapper {
         return dto;
     }
     public Model toEntity(CreateModelRequest createModelRequest) {
-        Model model = Model.builder()
-                .owner(userRepository.findById(createModelRequest.getOwnerId()).get())
+        return Model.builder()
                 .name(createModelRequest.getName())
                 .avatar(createModelRequest.getAvatar())
                 .breed(createModelRequest.getBreed())
@@ -86,6 +86,6 @@ public class ModelMapper {
                 .artMasterName(createModelRequest.getArtMasterName())
                 .yearOfPainting(createModelRequest.getYearOfPainting())
                 .build();
-        return model;
     }
+
 }

@@ -60,9 +60,26 @@ public class ModelController {
     }
 
     @PutMapping("/{horseId}")
-    public DetailModelResponse updateModel(@PathVariable Long id, @PathVariable Long horseId, @RequestBody CreateModelRequest createModelRequest) {
-        return modelService.update(horseId, createModelRequest);
+    public DetailModelResponse updateModel(
+            @PathVariable Long id,
+            @PathVariable Long horseId,
+            @RequestPart("modelData") CreateModelRequest createModelRequest,
+            @RequestPart(value = "avatar", required = false) MultipartFile avatarFile,
+            @RequestPart(value = "mediaFiles", required = false) List<MultipartFile> mediaFiles,
+            @RequestPart(value = "rewardFiles", required = false) List<MultipartFile> rewardFiles
+    ) throws IOException {
+        String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
+        Long currentUserId = jwtUtil.extractUserId(token);
+        List<String> roles = jwtUtil.extractRoles(token);
+
+        if (!roles.contains("ROLE_ADMIN") && !id.equals(currentUserId)) {
+            throw new RuntimeException("Access denied: You can only update your own collection");
+        }
+
+        return modelService.updateModel(horseId, createModelRequest, avatarFile, mediaFiles, rewardFiles);
     }
+
+
 
     @DeleteMapping("/{horseId}")
     @ResponseStatus(HttpStatus.OK)
