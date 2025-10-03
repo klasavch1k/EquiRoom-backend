@@ -16,7 +16,7 @@ import java.util.Set;
 
 // дто создания модели или обновления
 public class CreateModelRequest {
-    private Long ownerId;// тут не реализованная проблема!!!!!!!!!!!!
+    private Long ownerId;
     private String name;               // Название лошади
     private String avatar;             // Основной аватар лошади
     private String breed;              // Порода

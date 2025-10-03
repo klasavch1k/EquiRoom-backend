@@ -12,7 +12,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @CrossOrigin(origins = "http://localhost:3000")
@@ -39,16 +41,22 @@ public class ModelController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public void createModel(@PathVariable Long id, @RequestBody CreateModelRequest createModelRequest) {
+    public void createModel(
+            @PathVariable Long id,
+            @RequestPart("modelData") CreateModelRequest createModelRequest,
+            @RequestPart(value = "avatar", required = false) MultipartFile avatarFile,
+            @RequestPart(value = "mediaFiles", required = false) List<MultipartFile> mediaFiles,
+            @RequestPart(value = "rewardFiles", required = false) List<MultipartFile> rewardFiles // optional
+    ) throws IOException {
         String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
         Long currentUserId = jwtUtil.extractUserId(token);
         List<String> roles = jwtUtil.extractRoles(token);
 
-        // Ограничение: обычный пользователь может добавлять только в свою коллекцию
         if (!roles.contains("ROLE_ADMIN") && !id.equals(currentUserId)) {
             throw new RuntimeException("Access denied: You can only add to your own collection");
         }
-        modelService.addModel(id, createModelRequest);
+
+        modelService.addModel(id, createModelRequest, avatarFile, mediaFiles, rewardFiles);
     }
 
     @PutMapping("/{horseId}")

@@ -4,6 +4,8 @@ import com.klasavchik.modelHorseProject.entity.Model;
 import com.klasavchik.modelHorseProject.entity.ModelMedia;
 import com.klasavchik.modelHorseProject.entity.Reward;
 import com.klasavchik.modelHorseProject.newDto.model.*;
+import com.klasavchik.modelHorseProject.repository.ModelRepository;
+import com.klasavchik.modelHorseProject.repository.UserRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -12,6 +14,14 @@ import java.util.stream.Collectors;
 
 @Component
 public class ModelMapper {
+    private final ModelRepository modelRepository;
+    private final UserRepository userRepository;
+
+    public ModelMapper(ModelRepository modelRepository, UserRepository userRepository) {
+        this.modelRepository = modelRepository;
+        this.userRepository = userRepository;
+    }
+
     public CardModelResponse toCardModelResponse(Model model) {
         return CardModelResponse.builder()
                 .id(model.getId())
@@ -66,6 +76,7 @@ public class ModelMapper {
     }
     public Model toEntity(CreateModelRequest createModelRequest) {
         Model model = Model.builder()
+                .owner(userRepository.findById(createModelRequest.getOwnerId()).get())
                 .name(createModelRequest.getName())
                 .avatar(createModelRequest.getAvatar())
                 .breed(createModelRequest.getBreed())
@@ -75,26 +86,6 @@ public class ModelMapper {
                 .artMasterName(createModelRequest.getArtMasterName())
                 .yearOfPainting(createModelRequest.getYearOfPainting())
                 .build();
-        if (createModelRequest.getModelMedia() != null) {
-            model.setModelMedia(createModelRequest.getModelMedia().stream()
-                    .map(m -> ModelMedia.builder()
-                            .url(m.getUrl())
-                            .mediaType(m.getMediaType())
-                            .model(model)
-                            .build())
-                    .collect(Collectors.toSet()));
-        }
-        if (createModelRequest.getRewards() != null) {
-            model.setRewards(createModelRequest.getRewards().stream()
-                    .map(r -> Reward.builder()
-                            .rewardName(r.getRewardName())
-                            .organizationName(r.getOrganizationName())
-                            .year(r.getYear())
-                            .avatar(r.getAvatar())
-                            .model(model)
-                            .build())
-                    .collect(Collectors.toSet()));
-        }
         return model;
     }
 }

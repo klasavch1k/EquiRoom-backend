@@ -14,7 +14,8 @@ public interface ModelRepository extends JpaRepository<Model, Long> {
     @Query("SELECT new com.klasavchik.modelHorseProject.newDto.model.CardModelResponse(" +
             "m.id, m.name, m.avatar, m.salesInformation, m.artMasterName, m.yearOfPainting) " +
             "FROM Model m " +
-            "WHERE m.owner.id = :ownerId")
+            "WHERE m.owner.id = :ownerId " +
+            "ORDER BY m.createdAt DESC")
     public List<CardModelResponse> findAllCardsByOwnerId(Long ownerId);
 
 //    @Query("SELECT m FROM Model m " +

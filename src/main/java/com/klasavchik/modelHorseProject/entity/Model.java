@@ -1,10 +1,7 @@
 package com.klasavchik.modelHorseProject.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -16,7 +13,8 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-
+@EqualsAndHashCode(exclude = {"modelMedia", "rewards"})
+@ToString(exclude = {"modelMedia", "rewards"})
 @Entity
 public class Model {
     @Id
@@ -54,4 +52,15 @@ public class Model {
     public void preUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
+
+    public void addReward(Reward reward) {
+        rewards.add(reward);
+        reward.setModel(this);
+    }
+
+    public void addMedia(ModelMedia media) {
+        modelMedia.add(media);
+        media.setModel(this);
+    }
+
 }
