@@ -67,7 +67,8 @@ public class ModelMapper {
                                         r.getRewardName(),
                                         r.getOrganizationName(),
                                         r.getYear(),
-                                        r.getAvatar()
+                                        r.getAvatar(),
+                                        r.getCreatedAt()
                                 ))
                                 .collect(Collectors.toSet())
                                 : Set.of()

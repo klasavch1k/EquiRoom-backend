@@ -15,9 +15,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CustomUserDetails implements UserDetails {
     private final UserAuthDto user;
+
+    public Long getUserId(){
+        return user.getId();
+    }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return user.getUserRoles().stream().map(role -> new SimpleGrantedAuthority("ROLE_"+ role.getRoleName())).toList();
+        return user.getUserRoles().stream().map(role -> new SimpleGrantedAuthority(role.getRoleName())).toList();
     }
 
     @Override

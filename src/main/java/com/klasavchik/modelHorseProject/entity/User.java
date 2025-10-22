@@ -26,12 +26,14 @@ public class User{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String email;
+    private String phoneNumber;
     private String password;
 
     @Builder.Default
     @OneToMany(mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<UserRole> userRoles = new HashSet<>();
     private LocalDate createdAt;
+    private LocalDateTime updatedAt;
     private boolean isOnline;
     private LocalDateTime lastLoginAt; //последнее время онлайна
 
@@ -39,8 +41,15 @@ public class User{
     @JoinColumn(name = "profile_id")
     private Profile profile;
 
-    @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY)
-    private Set<Model> modelsOwn = new HashSet<>();
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = LocalDate.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 
     public void addRole(Role role) {
         UserRole userRole = new UserRole();

@@ -3,15 +3,18 @@ package com.klasavchik.modelHorseProject.dto;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.LocalDate;
+
 @Data
 @Builder
-public class UserProfileDTO {
+public class DetailUserResponse {
     private Long id;
     private String firstName;
     private String lastName;
     private String bio;
     private String avatar;
-    private Integer following;
-    private Integer followers;
-    private Integer figurines;
+    private LocalDate dateOfBirth;
+    private String email;
+    private String phoneNumber;
+    private String gender;
 }

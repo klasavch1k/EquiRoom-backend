@@ -29,4 +29,7 @@ public interface ModelRepository extends JpaRepository<Model, Long> {
         "LEFT JOIN FETCH o.profile p " +
         "WHERE m.id = :id")
     Optional<Model> findModelWithDetails(@Param("id") Long id);
+
+@Query("SELECT count(m) FROM Model m WHERE m.owner.id = :ownerId")
+Integer getCountByOwnerId(Long ownerId);
 }

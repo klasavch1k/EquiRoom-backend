@@ -39,6 +39,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Разрешаем OPTIONS для всех
                         .requestMatchers("/api/v1/user/login", "/api/v1/user/register").permitAll()
+                        .requestMatchers("/api/v1/user/**").authenticated()
                         .requestMatchers("/uploads/**").permitAll() // Разрешаем доступ к /uploads/**
                         .anyRequest().authenticated()
                 )

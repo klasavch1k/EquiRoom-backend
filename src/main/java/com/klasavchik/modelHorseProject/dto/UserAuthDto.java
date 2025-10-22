@@ -13,6 +13,7 @@ import java.util.Set;
 @Data
 @Builder
 public class UserAuthDto {
+    private Long id;
     private String email;
     private String password;
 

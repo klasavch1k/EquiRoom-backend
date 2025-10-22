@@ -13,17 +13,15 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import com.klasavchik.modelHorseProject.security.JwtUtil;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.stream.Collectors;
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/v1/user")
 public class UserController {
     private final UserService userService;
-    private final JwtUtil jwtUtil;
-    private final AuthenticationManager authenticationManager;
 
     //возвращает список всех юзеров
     @GetMapping
@@ -35,6 +33,11 @@ public class UserController {
     @GetMapping("/{id}")
     public UserProfileDTO getUser(@PathVariable("id") Long id) {
         return userService.getUserProfile(id);
+    }
+
+    @GetMapping("{id}/detail")
+    public DetailUserResponse getDetailUser(@PathVariable Long id) {
+        return userService.getDetailUser(id);
     }
 
     // Создаёт юзера
@@ -59,20 +62,35 @@ public class UserController {
         }
     }
 
-    @PutMapping
-    @ResponseStatus(HttpStatus.OK)
-    public User update(@RequestBody UpdateUserRequest userDto) {
+    @GetMapping("/check-email")
+    public ResponseEntity<Boolean> checkEmail(@RequestParam String email) {
+        boolean exists = userService.emailExists(email);
+        return ResponseEntity.ok(exists);
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<?> update(@RequestBody UpdateUserRequest userDto) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        Long currentUserId = (Long) auth.getDetails();
+        CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
+        Long currentUserId = userDetails.getUserId();
+
         List<String> roles = auth.getAuthorities().stream()
                 .map(Object::toString)
                 .toList();
 
         if (!roles.contains("ROLE_ADMIN") && !userDto.getId().equals(currentUserId)) {
-            throw new RuntimeException("Access denied: You can only edit your own profile");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied: You can only edit your own profile");
         }
 
-        return userService.update(userDto);
+        try {
+            userService.update(userDto);
+            return ResponseEntity.ok().build();
+        } catch (RuntimeException e) {
+            if (e.getMessage().equals("Email already exists")) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email already exists");
+            }
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
     }
 
     //удаляет пользователя
@@ -81,8 +99,6 @@ public class UserController {
     public void delete(@PathVariable("id") Long id) {
         userService.deleteById(id);
     }
-
-
 }
 
 

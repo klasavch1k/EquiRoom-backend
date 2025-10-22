@@ -92,7 +92,7 @@ public class ModelService {
         Model model = modelRepository.findModelWithDetails(horseId)
                 .orElseThrow(() -> new RuntimeException("Model not found"));
 
-        // --- Обновляем основные поля ---
+        // Обновляем основные поля
         model.setName(createModelRequest.getName());
         model.setBreed(createModelRequest.getBreed());
         model.setHorseColor(createModelRequest.getHorseColor());
@@ -101,44 +101,45 @@ public class ModelService {
         model.setArtMasterName(createModelRequest.getArtMasterName());
         model.setYearOfPainting(createModelRequest.getYearOfPainting());
 
-        // --- Аватар ---
+        // Аватар
         if (avatarFile != null && !avatarFile.isEmpty()) {
             String avatarUrl = fileStorageService.saveFile(avatarFile);
             model.setAvatar(avatarUrl);
         }
 
-        // --- Обновление медиа ---
-        Map<Long, ModelMedia> existingMedia = model.getModelMedia().stream()
-                .collect(Collectors.toMap(ModelMedia::getId, m -> m));
+        // ======= ОБНОВЛЕНИЕ МЕДИА =======
+        if (createModelRequest.getModelMedia() != null) {
 
-        Set<ModelMedia> updatedMedia = new HashSet<>();
-        int mediaIndex = 0;
-        for (ModelMediaRequest mReq : createModelRequest.getModelMedia()) {
-            ModelMedia media;
-            if (mReq.getId() != null && existingMedia.containsKey(mReq.getId())) {
-                media = existingMedia.get(mReq.getId());
-                media.setUrl(mReq.getUrl());
-                media.setMediaType(mReq.getMediaType());
-            } else {
-                // Новый файл
-                MultipartFile file = (mediaFiles != null && mediaFiles.size() > mediaIndex) ? mediaFiles.get(mediaIndex) : null;
-                String url = mReq.getUrl();
-                if (file != null && !file.isEmpty()) {
-                    url = fileStorageService.saveFile(file);
+            // 1️⃣ Соберем ID старых, которые остались в запросе (значит — их не удалили)
+            Set<Long> requestMediaIds = createModelRequest.getModelMedia().stream()
+                    .map(ModelMediaRequest::getId)
+                    .filter(id -> id != null)
+                    .collect(Collectors.toSet());
+
+            // 2️⃣ Удалим из модели те медиа, которых больше нет в запросе
+            model.getModelMedia().removeIf(media -> media.getId() != null && !requestMediaIds.contains(media.getId()));
+
+            // 3️⃣ Добавим новые медиа (id == null)
+            if (mediaFiles != null) {
+                for (MultipartFile file : mediaFiles) {
+                    if (file != null && !file.isEmpty()) {
+                        String url = fileStorageService.saveFile(file);
+                        MediaType type = file.getContentType() != null && file.getContentType().startsWith("video/")
+                                ? MediaType.VIDEO
+                                : MediaType.IMAGE;
+                        ModelMedia newMedia = ModelMedia.builder()
+                                .url(url)
+                                .mediaType(type)
+                                .model(model)
+                                .build();
+                        model.getModelMedia().add(newMedia);
+                    }
                 }
-                media = ModelMedia.builder()
-                        .url(url)
-                        .mediaType(mReq.getMediaType())
-                        .model(model)
-                        .build();
-                mediaIndex++;
             }
-            updatedMedia.add(media);
         }
-        model.getModelMedia().clear();
-        model.getModelMedia().addAll(updatedMedia);
 
-        // --- Обновление наград ---
+
+        // Обновление наград
         Map<Long, Reward> existingRewards = model.getRewards().stream()
                 .collect(Collectors.toMap(r -> r.getId().longValue(), r -> r));
 
@@ -151,11 +152,21 @@ public class ModelService {
                 reward.setRewardName(rReq.getRewardName());
                 reward.setOrganizationName(rReq.getOrganizationName());
                 reward.setYear(rReq.getYear());
-            } else {
-                MultipartFile file = (rewardFiles != null && rewardFiles.size() > rewardIndex) ? rewardFiles.get(rewardIndex) : null;
+                String avatarUrl = rReq.getAvatar();
+                if (rewardFiles != null && rewardIndex < rewardFiles.size()) {
+                    MultipartFile file = rewardFiles.get(rewardIndex);
+                    if (file != null && !file.isEmpty()) {
+                        avatarUrl = fileStorageService.saveFile(file);
+                        rewardIndex++;
+                    }
+                }
+                reward.setAvatar(avatarUrl);
+            } else if (rewardFiles != null && rewardIndex < rewardFiles.size()) {
+                MultipartFile file = rewardFiles.get(rewardIndex);
                 String avatarUrl = rReq.getAvatar();
                 if (file != null && !file.isEmpty()) {
                     avatarUrl = fileStorageService.saveFile(file);
+                    rewardIndex++;
                 }
                 reward = Reward.builder()
                         .rewardName(rReq.getRewardName())
@@ -164,7 +175,14 @@ public class ModelService {
                         .avatar(avatarUrl)
                         .model(model)
                         .build();
-                rewardIndex++;
+            } else {
+                reward = Reward.builder()
+                        .rewardName(rReq.getRewardName())
+                        .organizationName(rReq.getOrganizationName())
+                        .year(rReq.getYear())
+                        .avatar(rReq.getAvatar())
+                        .model(model)
+                        .build();
             }
             updatedRewards.add(reward);
         }
