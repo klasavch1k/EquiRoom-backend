@@ -37,7 +37,7 @@ public class ModelService {
 
         // Сохраняем аватарку
         if (avatarFile != null && !avatarFile.isEmpty()) {
-            String avatarUrl = fileStorageService.saveFile(avatarFile);
+            String avatarUrl = fileStorageService.saveFile(avatarFile,"horses");
             model.setAvatar(avatarUrl);
             System.out.println("Saving file: " + avatarFile.getOriginalFilename() + ", URL: " + avatarUrl);
         }
@@ -45,7 +45,7 @@ public class ModelService {
         // Сохраняем медиа
         if (mediaFiles != null) {
             for (MultipartFile file : mediaFiles) {
-                String url = fileStorageService.saveFile(file);
+                String url = fileStorageService.saveFile(file,"horses");
                 MediaType type = file.getContentType().startsWith("video/") ? MediaType.VIDEO : MediaType.IMAGE;
                 model.getModelMedia().add(ModelMedia.builder()
                         .url(url)
@@ -63,7 +63,7 @@ public class ModelService {
                 if (rewardFiles != null && rewardFiles.size() > index) {
                     MultipartFile rewardFile = rewardFiles.get(index);
                     if (!rewardFile.isEmpty()) {
-                        rewardAvatar = fileStorageService.saveFile(rewardFile);
+                        rewardAvatar = fileStorageService.saveFile(rewardFile,"horses");
                     }
                 }
                 model.getRewards().add(Reward.builder()
@@ -103,7 +103,7 @@ public class ModelService {
 
         // Аватар
         if (avatarFile != null && !avatarFile.isEmpty()) {
-            String avatarUrl = fileStorageService.saveFile(avatarFile);
+            String avatarUrl = fileStorageService.saveFile(avatarFile,"horses");
             model.setAvatar(avatarUrl);
         }
 
@@ -123,7 +123,7 @@ public class ModelService {
             if (mediaFiles != null) {
                 for (MultipartFile file : mediaFiles) {
                     if (file != null && !file.isEmpty()) {
-                        String url = fileStorageService.saveFile(file);
+                        String url = fileStorageService.saveFile(file,"horses");
                         MediaType type = file.getContentType() != null && file.getContentType().startsWith("video/")
                                 ? MediaType.VIDEO
                                 : MediaType.IMAGE;
@@ -156,7 +156,7 @@ public class ModelService {
                 if (rewardFiles != null && rewardIndex < rewardFiles.size()) {
                     MultipartFile file = rewardFiles.get(rewardIndex);
                     if (file != null && !file.isEmpty()) {
-                        avatarUrl = fileStorageService.saveFile(file);
+                        avatarUrl = fileStorageService.saveFile(file,"horses");
                         rewardIndex++;
                     }
                 }
@@ -165,7 +165,7 @@ public class ModelService {
                 MultipartFile file = rewardFiles.get(rewardIndex);
                 String avatarUrl = rReq.getAvatar();
                 if (file != null && !file.isEmpty()) {
-                    avatarUrl = fileStorageService.saveFile(file);
+                    avatarUrl = fileStorageService.saveFile(file,"horses");
                     rewardIndex++;
                 }
                 reward = Reward.builder()

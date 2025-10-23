@@ -16,5 +16,6 @@ public class UpdateUserRequest {
     private String email;
     private String phoneNumber;
     private LocalDate dateOfBirth;
+    private String avatar;
 //    private String password; решено в будующем сделать отдельную вкладку для изменения пароля
 }

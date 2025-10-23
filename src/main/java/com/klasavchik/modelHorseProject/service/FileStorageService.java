@@ -10,29 +10,31 @@ import java.util.UUID;
 @Service
 public class FileStorageService {
 
-    private final Path root = Paths.get("D:/projectPhoto/horses");
+    private final Path root = Paths.get("D:/projectPhoto");
 
-    public String saveFile(MultipartFile file) throws IOException {
+    // Модифицированный метод с параметром folder (e.g., "horses" или "avatars")
+    public String saveFile(MultipartFile file, String folder) throws IOException {
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("Пустой файл невозможно сохранить");
         }
 
-        // Создание директории при первом запуске
-        if (!Files.exists(root)) {
-            Files.createDirectories(root);
+        // Создание директории root/folder, если не существует
+        Path dir = root.resolve(folder);
+        if (!Files.exists(dir)) {
+            Files.createDirectories(dir);
         }
 
         // Генерируем новое имя файла (UUID + оригинальное расширение)
         String extension = getFileExtension(file.getOriginalFilename());
         String filename = UUID.randomUUID() + (extension.isEmpty() ? "" : "." + extension);
 
-        Path filePath = root.resolve(filename);
+        Path filePath = dir.resolve(filename);
 
-        // Копируем с заменой, если вдруг совпадёт UUID (практически невозможно)
+        // Копируем с заменой
         Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-        // Возвращаем путь, который фронт сможет использовать
-        return "/uploads/horses/" + filename;
+        // Возвращаем относительный URL
+        return "/uploads/" + folder + "/" + filename;
     }
 
     private String getFileExtension(String originalName) {

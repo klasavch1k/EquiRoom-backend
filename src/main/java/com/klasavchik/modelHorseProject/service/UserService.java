@@ -12,13 +12,17 @@ import com.klasavchik.modelHorseProject.security.CustomUserDetails;
 import com.klasavchik.modelHorseProject.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -33,7 +37,7 @@ public class UserService {
     private final RoleRepository roleRepository;
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
-
+    private final FileStorageService fileStorageService;
     public  Optional<User> getUserBuId(Long id) {
         return userRepository.findById(id);
     }
@@ -69,7 +73,7 @@ public class UserService {
     }
 
     @Transactional
-    public void update(UpdateUserRequest dto) {
+    public void update(UpdateUserRequest dto, MultipartFile avatarFile) throws IOException {
         System.out.println("Starting update for user ID: " + dto.getId());
         User user = userRepository.findById(dto.getId())
                 .orElseThrow(() -> {
@@ -108,6 +112,18 @@ public class UserService {
         user.setPhoneNumber(dto.getPhoneNumber());
         user.setUpdatedAt(LocalDateTime.now());
 
+        // Обработка аватарки
+        if (avatarFile != null && !avatarFile.isEmpty()) {
+            String avatarUrl = fileStorageService.saveFile(avatarFile, "avatars");
+            profile.setAvatar(avatarUrl);
+            System.out.println("Avatar uploaded: " + avatarUrl);
+        } else if (dto.getAvatar() == null) {
+            // Если явно передан null — удаляем аватарку
+            profile.setAvatar(null);
+            System.out.println("Avatar removed");
+        }
+        // Если avatarFile null и dto.avatar не null — оставляем как есть
+
         System.out.println("Attempting to save user: " + user.getEmail());
         try {
             User savedUser = userRepository.save(user);
@@ -135,6 +151,10 @@ public class UserService {
     public boolean emailExists(String email) {
         return userRepository.existsByEmail(email);
     }
+    public Page<UserSearchDTO> searchUsers(String query, Pageable pageable) {
+        String search = "%" + query.toLowerCase() + "%";
+        return userRepository.findBySearch(search, pageable);
+    }
 
     @Transactional(readOnly = true)
     public JwtResponse login(CreateUserRequest userDto) {
@@ -155,6 +175,7 @@ public class UserService {
     public DetailUserResponse getDetailUser(Long id) {
         User user = userRepository.findByIdWithProfileRolesAndModels(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        return userMapper.toDetailUserResponse(user);
+        DetailUserResponse detailUserResponse = userMapper.toDetailUserResponse(user);
+        return detailUserResponse;
     }
 }

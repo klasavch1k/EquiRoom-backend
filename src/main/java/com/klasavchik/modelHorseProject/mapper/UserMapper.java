@@ -71,6 +71,7 @@ public class UserMapper {
                 .lastName(user.getProfile().getLastName())
                 .email(user.getEmail())
                 .phoneNumber(user.getPhoneNumber())
+                .avatar(user.getProfile().getAvatar())
                 .dateOfBirth(user.getProfile().getDateOfBirth())
                 .gender(gender)
                 .bio(user.getProfile().getBio())
