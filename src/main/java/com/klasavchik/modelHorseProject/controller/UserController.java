@@ -18,6 +18,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.util.List;
+
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequiredArgsConstructor
@@ -77,6 +78,11 @@ public class UserController {
         boolean exists = userService.emailExists(email);
         return ResponseEntity.ok(exists);
     }
+    @GetMapping("/check-nickname")
+    public ResponseEntity<Boolean> checkNickname(@RequestParam String nickname) {
+        boolean exists = userService.nicknameExists(nickname);
+        return ResponseEntity.ok(exists);
+    }
 
     @PutMapping("/update")
     public ResponseEntity<?> update(
@@ -113,6 +119,18 @@ public class UserController {
     public void delete(@PathVariable("id") Long id) {
         userService.deleteById(id);
     }
+
+    // Новые эндпоинты для подписки/отписки
+    @PostMapping("/{id}/follow")
+    @ResponseStatus(HttpStatus.OK)
+    public void follow(@PathVariable("id") Long id) {
+        userService.follow(id);
+    }
+
+
+    @PostMapping("/{id}/unfollow")
+    @ResponseStatus(HttpStatus.OK)
+    public void unfollow(@PathVariable("id") Long id) {
+        userService.unfollow(id);
+    }
 }
-
-

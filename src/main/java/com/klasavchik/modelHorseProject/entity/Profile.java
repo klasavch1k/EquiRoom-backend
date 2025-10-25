@@ -26,6 +26,6 @@ public class Profile {
     private LocalDate dateOfBirth;
     private Gender gender;
         @Column(unique = true)
-    private String nickName;
+    private String nickname;
     private String bio; // кринж подпись в аккаунте
 }

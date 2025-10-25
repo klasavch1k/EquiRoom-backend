@@ -7,11 +7,13 @@ import lombok.Data;
 @Builder
 public class UserProfileDTO {
     private Long id;
+    private String nickname;
     private String firstName;
     private String lastName;
     private String bio;
     private String avatar;
-    private Integer following;
-    private Integer followers;
+    private Long following;
+    private Long followers;
     private Integer figurines;
+    private Boolean isFollowedByCurrentUser;
 }

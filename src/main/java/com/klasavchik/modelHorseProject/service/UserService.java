@@ -6,6 +6,7 @@ import com.klasavchik.modelHorseProject.entity.Profile;
 import com.klasavchik.modelHorseProject.entity.Role;
 import com.klasavchik.modelHorseProject.entity.User;
 import com.klasavchik.modelHorseProject.mapper.UserMapper;
+import com.klasavchik.modelHorseProject.repository.FollowRepository;
 import com.klasavchik.modelHorseProject.repository.RoleRepository;
 import com.klasavchik.modelHorseProject.repository.UserRepository;
 import com.klasavchik.modelHorseProject.security.CustomUserDetails;
@@ -17,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +34,7 @@ import java.util.Optional;
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private final FollowRepository followRepository; // Новая зависимость
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
@@ -88,18 +91,25 @@ public class UserService {
             throw new RuntimeException("Email already exists");
         }
 
+
         Profile profile = user.getProfile();
         if (profile == null) {
             System.out.println("Profile is null, creating new profile");
             profile = new Profile();
             user.setProfile(profile);
         }
+        if (!user.getProfile().getNickname().equals(dto.getNickname()) && userRepository.findByEmail(dto.getNickname()).isPresent()) {
+            System.out.println("Nickname already exists: " + dto.getEmail());
+            throw new RuntimeException("Nickname already exists");
+        }
 
         // Обновляем поля
         profile.setFirstName(dto.getFirstName());
         profile.setLastName(dto.getLastName());
         profile.setBio(dto.getBio());
-        System.out.println("Gender from DTO: " + dto.getGender());
+        profile.setNickname(dto.getNickname());
+        profile.setDateOfBirth(dto.getDateOfBirth());
+
         if (dto.getGender() != null && dto.getGender().equals("MALE")) {
             profile.setGender(Gender.MALE);
         } else if (dto.getGender() != null && dto.getGender().equals("FEMALE")) {
@@ -107,7 +117,7 @@ public class UserService {
         } else {
             System.out.println("Invalid or null gender: " + dto.getGender());
         }
-        profile.setDateOfBirth(dto.getDateOfBirth());
+
         user.setEmail(dto.getEmail());
         user.setPhoneNumber(dto.getPhoneNumber());
         user.setUpdatedAt(LocalDateTime.now());
@@ -145,7 +155,20 @@ public class UserService {
     public UserProfileDTO getUserProfile(Long id) {
         User user = userRepository.findByIdWithProfileRolesAndModels(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        return userMapper.toProfileDTO(user);
+
+        boolean isFollowedByCurrentUser = false;
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated() && auth.getPrincipal() instanceof CustomUserDetails) {
+            CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
+            Long currentUserId = userDetails.getUserId();
+            isFollowedByCurrentUser = followRepository.existsByFollowerIdAndFollowedId(currentUserId, id);
+        }
+
+        UserProfileDTO dto = userMapper.toProfileDTO(user);
+        dto.setFollowers(followRepository.countFollowers(id));
+        dto.setFollowing(followRepository.countFollowing(id));
+        dto.setIsFollowedByCurrentUser(isFollowedByCurrentUser);
+        return dto;
     }
 
     public boolean emailExists(String email) {
@@ -177,5 +200,50 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         DetailUserResponse detailUserResponse = userMapper.toDetailUserResponse(user);
         return detailUserResponse;
+    }
+
+    // Новые методы для подписки/отписки
+    @Transactional
+    public void follow(Long targetId) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
+        Long currentUserId = userDetails.getUserId();
+
+        User currentUser = userRepository.findById(currentUserId)
+                .orElseThrow(() -> new RuntimeException("Current user not found"));
+        User target = userRepository.findById(targetId)
+                .orElseThrow(() -> new RuntimeException("Target user not found"));
+
+        if (followRepository.existsByFollowerIdAndFollowedId(currentUserId, targetId)) {
+            return; // Уже подписан, идемпотентно
+        }
+
+        currentUser.follow(target);
+//        userRepository.save(currentUser);
+    }
+
+
+
+    @Transactional
+    public void unfollow(Long targetId) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
+        Long currentUserId = userDetails.getUserId();
+
+        User currentUser = userRepository.findById(currentUserId)
+                .orElseThrow(() -> new RuntimeException("Current user not found"));
+        User target = userRepository.findById(targetId)
+                .orElseThrow(() -> new RuntimeException("Target user not found"));
+
+        if (!followRepository.existsByFollowerIdAndFollowedId(currentUserId, targetId)) {
+            return; // Не подписан, идемпотентно
+        }
+
+        currentUser.unfollow(target);
+//        userRepository.save(currentUser);
+    }
+
+    public boolean nicknameExists(String nickname) {
+        return userRepository.existsByNickname(nickname);
     }
 }

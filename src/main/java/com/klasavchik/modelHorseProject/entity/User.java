@@ -14,9 +14,8 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString(exclude = {"modelsOwn","modelsSetMade","userRoles"})
-@EqualsAndHashCode(exclude = {"modelsOwn","modelsSetMade","userRoles"})
-
+@ToString(exclude = {"userRoles", "following", "followers"})
+@EqualsAndHashCode(exclude = {"userRoles", "following", "followers"})
 @Entity
 @Table(name = "users")
 
@@ -41,6 +40,14 @@ public class User{
     @JoinColumn(name = "profile_id")
     private Profile profile;
 
+    @Builder.Default
+    @OneToMany(mappedBy = "follower", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Set<Follow> following = new HashSet<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "followed", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Set<Follow> followers = new HashSet<>();
+
     @PrePersist
     public void prePersist() {
         this.createdAt = LocalDate.now();
@@ -59,5 +66,23 @@ public class User{
     }
     public void removeRole(Role role) {
         userRoles.removeIf(userRole -> userRole.getRole().equals(role));
+    }
+
+
+    public void follow(User target) {
+        if (this.equals(target)) {
+            throw new IllegalArgumentException("Cannot follow yourself");
+        }
+        Follow follow = Follow.builder()
+                .follower(this)
+                .followed(target)
+                .build();
+        following.add(follow);
+        target.followers.add(follow);
+    }
+
+    public void unfollow(User target) {
+        following.removeIf(f -> f.getFollowed().equals(target));
+        target.followers.removeIf(f -> f.getFollower().equals(this));
     }
 }

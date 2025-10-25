@@ -5,6 +5,7 @@ import com.klasavchik.modelHorseProject.entity.Gender;
 import com.klasavchik.modelHorseProject.entity.Profile;
 import com.klasavchik.modelHorseProject.entity.User;
 import com.klasavchik.modelHorseProject.entity.UserRole;
+import com.klasavchik.modelHorseProject.repository.FollowRepository;
 import com.klasavchik.modelHorseProject.repository.ModelRepository;
 import org.springframework.stereotype.Component;
 
@@ -14,7 +15,7 @@ import java.util.stream.Collectors;
 public class UserMapper {
     private final ModelRepository modelRepository;
 
-    public UserMapper(ModelRepository modelRepository) {
+    public UserMapper(ModelRepository modelRepository, FollowRepository followRepository) {
         this.modelRepository = modelRepository;
     }
 
@@ -34,12 +35,11 @@ public class UserMapper {
     public UserProfileDTO toProfileDTO(User user) {
         return UserProfileDTO.builder()
                 .id(user.getId())
+                .nickname(user.getProfile().getNickname())
                 .firstName(user.getProfile().getFirstName())
                 .lastName(user.getProfile().getLastName())
                 .bio(user.getProfile().getBio())
-                .figurines(modelRepository.getCountByOwnerId(user.getId())) // Кол-во фигурок
-                .followers(10)
-                .following(10)
+                .figurines( modelRepository.getCountByOwnerId(user.getId())) // Кол-во фигурок
                 .avatar(user.getProfile().getAvatar())// Заглушка, замени логикой
                 .build();
     }
@@ -75,6 +75,7 @@ public class UserMapper {
                 .dateOfBirth(user.getProfile().getDateOfBirth())
                 .gender(gender)
                 .bio(user.getProfile().getBio())
+                .nickname(user.getProfile().getNickname())
                 .build();
     }
 }
