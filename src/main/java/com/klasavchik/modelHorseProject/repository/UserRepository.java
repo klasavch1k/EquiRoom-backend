@@ -16,8 +16,7 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByEmail(String email);
-
-
+    Optional<User> findByProfile_NicknameIgnoreCase(String nickname);
 
     @Query("SELECT u FROM User u LEFT JOIN FETCH u.profile LEFT JOIN FETCH u.userRoles WHERE u.id = :id")
     Optional<User> findByIdWithProfileRolesAndModels(@Param("id") Long id);

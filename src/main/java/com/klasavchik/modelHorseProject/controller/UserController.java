@@ -61,6 +61,25 @@ public class UserController {
         Pageable pageable = PageRequest.of(page, size);
         return userService.searchUsers(query, pageable);
     }
+    @GetMapping("/{id}/followers")
+    public Page<UserSearchDTO> getFollowers(
+            @PathVariable("id") Long id,
+            @RequestParam(defaultValue = "") String query,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return userService.getFollowers(id, query, pageable);
+    }
+
+    @GetMapping("/{id}/following")
+    public Page<UserSearchDTO> getFollowing(
+            @PathVariable("id") Long id,
+            @RequestParam(defaultValue = "") String query,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return userService.getFollowing(id, query, pageable);
+    }
 
     // Логинация и безопасность
     @PostMapping("/login")

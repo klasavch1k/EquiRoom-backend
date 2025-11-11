@@ -1,13 +1,11 @@
 package com.klasavchik.modelHorseProject.controller;
 
-import com.klasavchik.modelHorseProject.entity.Model;
-import com.klasavchik.modelHorseProject.mapper.ModelMapper;
 import com.klasavchik.modelHorseProject.newDto.model.CreateModelRequest;
 import com.klasavchik.modelHorseProject.newDto.model.CardModelResponse;
 import com.klasavchik.modelHorseProject.newDto.model.DetailModelResponse;
-import com.klasavchik.modelHorseProject.repository.ModelRepository;
 import com.klasavchik.modelHorseProject.security.JwtUtil;
 import com.klasavchik.modelHorseProject.service.ModelService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,12 +18,11 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/v1/user/{id}/collection")
+@RequestMapping("/api/v1/user/{id}/collection")
 public class ModelController {
+
     private final ModelService modelService;
     private final JwtUtil jwtUtil;
-    private final ModelRepository modelRepository;
-    private final ModelMapper modelMapper;
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
@@ -43,15 +40,16 @@ public class ModelController {
     @ResponseStatus(HttpStatus.CREATED)
     public void createModel(
             @PathVariable Long id,
-            @RequestPart("modelData") CreateModelRequest createModelRequest,
+            @Valid @RequestPart("modelData") CreateModelRequest createModelRequest, // ✅ добавлена @Valid
             @RequestPart(value = "avatar", required = false) MultipartFile avatarFile,
             @RequestPart(value = "mediaFiles", required = false) List<MultipartFile> mediaFiles,
-            @RequestPart(value = "rewardFiles", required = false) List<MultipartFile> rewardFiles // optional
+            @RequestPart(value = "rewardFiles", required = false) List<MultipartFile> rewardFiles
     ) throws IOException {
         String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
         Long currentUserId = jwtUtil.extractUserId(token);
         List<String> roles = jwtUtil.extractRoles(token);
 
+        // бизнес-валидация: права доступа
         if (!roles.contains("ROLE_ADMIN") && !id.equals(currentUserId)) {
             throw new RuntimeException("Access denied: You can only add to your own collection");
         }
@@ -60,10 +58,11 @@ public class ModelController {
     }
 
     @PutMapping("/{horseId}")
+    @ResponseStatus(HttpStatus.OK)
     public DetailModelResponse updateModel(
             @PathVariable Long id,
             @PathVariable Long horseId,
-            @RequestPart("modelData") CreateModelRequest createModelRequest,
+            @Valid @RequestPart("modelData") CreateModelRequest createModelRequest, // ✅ тоже валидируем
             @RequestPart(value = "avatar", required = false) MultipartFile avatarFile,
             @RequestPart(value = "mediaFiles", required = false) List<MultipartFile> mediaFiles,
             @RequestPart(value = "rewardFiles", required = false) List<MultipartFile> rewardFiles
@@ -79,11 +78,9 @@ public class ModelController {
         return modelService.updateModel(horseId, createModelRequest, avatarFile, mediaFiles, rewardFiles);
     }
 
-
-
     @DeleteMapping("/{horseId}")
     @ResponseStatus(HttpStatus.OK)
     public void deleteModel(@PathVariable Long id, @PathVariable Long horseId) {
-        //modelService.delete();
+        // TODO: добавить логику удаления
     }
 }

@@ -27,6 +27,9 @@ public class JwtFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
         // Пропускаем запросы OPTIONS без проверки токена
+        System.out.println("🔹 JWT FILTER START: " + request.getMethod() + " " + request.getRequestURI());
+        System.out.println("🔹 Header Authorization: " + request.getHeader("Authorization"));
+
         if (request.getMethod().equalsIgnoreCase("OPTIONS")) {
             chain.doFilter(request, response);
             return;
@@ -35,6 +38,7 @@ public class JwtFilter extends OncePerRequestFilter {
         String header = request.getHeader("Authorization");
         if (header != null && header.startsWith("Bearer ")) {
             String token = header.substring(7);
+
             try {
                 String username = jwtUtil.extractUsername(token);
                 if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -46,6 +50,9 @@ public class JwtFilter extends OncePerRequestFilter {
                                 userDetails, token, roles.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList()));
                         auth.setDetails(userId); // Сохраняем userId в Authentication
                         SecurityContextHolder.getContext().setAuthentication(auth);
+                        System.out.println("🔹 User: " + username);
+                        System.out.println("🔹 UserId: " + userId);
+                        System.out.println("🔹 Roles: " + roles);
                     }
                 }
             } catch (ExpiredJwtException e) {
@@ -58,6 +65,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 return;
             }
         }
+
         chain.doFilter(request, response);
     }
 }

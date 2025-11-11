@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -23,11 +24,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -41,7 +44,8 @@ public class UserService {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final FileStorageService fileStorageService;
-    public  Optional<User> getUserBuId(Long id) {
+
+    public Optional<User> getUserBuId(Long id) {
         return userRepository.findById(id);
     }
 
@@ -62,14 +66,14 @@ public class UserService {
         user.setCreatedAt(LocalDate.now());
         user.setProfile(profile);
         System.out.println("юзер готов");
-        if(userRepository.findByEmail(user.getEmail()).isPresent()) {
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
             return "Email already exists";
-        }
-        else{
+        } else {
             userRepository.save(user);
             return "User created: " + user.getEmail();
         }
     }
+
     // Новый метод для получения пользователя по email
     public Optional<User> getUserByEmail(String email) {
         return userRepository.findByEmailWithProfileAndRoles(email);
@@ -98,9 +102,21 @@ public class UserService {
             profile = new Profile();
             user.setProfile(profile);
         }
-        if (!user.getProfile().getNickname().equals(dto.getNickname()) && userRepository.findByEmail(dto.getNickname()).isPresent()) {
-            System.out.println("Nickname already exists: " + dto.getEmail());
-            throw new RuntimeException("Nickname already exists");
+        String oldNickname = user.getProfile() != null ? user.getProfile().getNickname() : null;
+        String newNickname = dto.getNickname();
+
+// Никнейм изменился?
+        boolean nicknameChanged = !Objects.equals(oldNickname, newNickname);
+
+// Если изменился — проверяем, не занят ли новый никнейм
+        if (nicknameChanged && newNickname != null && !newNickname.trim().isEmpty()) {
+            boolean nicknameTaken = userRepository.findByProfile_NicknameIgnoreCase(newNickname)
+                    .filter(u -> !u.getId().equals(user.getId())) // исключаем текущего пользователя
+                    .isPresent();
+
+            if (nicknameTaken) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nickname already exists");
+            }
         }
 
         // Обновляем поля
@@ -174,6 +190,7 @@ public class UserService {
     public boolean emailExists(String email) {
         return userRepository.existsByEmail(email);
     }
+
     public Page<UserSearchDTO> searchUsers(String query, Pageable pageable) {
         String search = "%" + query.toLowerCase() + "%";
         return userRepository.findBySearch(search, pageable);
@@ -223,7 +240,6 @@ public class UserService {
     }
 
 
-
     @Transactional
     public void unfollow(Long targetId) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -245,5 +261,16 @@ public class UserService {
 
     public boolean nicknameExists(String nickname) {
         return userRepository.existsByNickname(nickname);
+    }
+
+    public Page<UserSearchDTO> getFollowers(Long userId, String query, Pageable pageable) {
+        String search = "%" + query.toLowerCase() + "%";
+        return followRepository.findFollowers(userId, search, pageable);
+    }
+
+    public Page<UserSearchDTO> getFollowing(Long userId, String query, Pageable pageable) {
+        String search = "%" + query.toLowerCase() + "%";
+        Page<UserSearchDTO> following = followRepository.findFollowing(userId, search, pageable);
+        return following;
     }
 }

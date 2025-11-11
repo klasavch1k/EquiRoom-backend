@@ -1,5 +1,6 @@
 package com.klasavchik.modelHorseProject.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 

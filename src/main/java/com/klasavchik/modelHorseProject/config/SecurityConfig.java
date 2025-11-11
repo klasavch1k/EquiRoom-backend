@@ -31,19 +31,23 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
                                                    CustomUserDetailsService userDetailsService,
-                                                   JwtUtil jwtUtil) throws Exception {
+                                                   JwtUtil jwtUtil,
+                                                   JwtFilter jwtFilter) throws Exception {
         http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Явно включаем CORS
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Разрешаем OPTIONS для всех
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/v1/user/login", "/api/v1/user/register").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/uploads/**").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/user/*/collection/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/user/*/collection/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/user/*/collection/**").authenticated()
                         .requestMatchers("/api/v1/user/**").authenticated()
-                        .requestMatchers("/uploads/**").permitAll() // Разрешаем доступ к /uploads/**
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(new JwtFilter(userDetailsService, jwtUtil), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -54,7 +58,7 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(List.of("http://localhost:3000"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowCredentials(true); // обязательно для JWT/cookies
+        configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;

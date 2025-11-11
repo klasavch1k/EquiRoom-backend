@@ -37,7 +37,8 @@ public class JwtUtil {
     }
     // Извлечение ролей
     public List<String> extractRoles(String token) {
-        return extractClaim(token, claims -> claims.get("roles", List.class));
+        List roles = extractClaim(token, claims -> claims.get("roles", List.class));
+        return roles;
     }
     // Получение всех данных из токена
     private Claims extractAllClaims(String token) {
@@ -72,6 +73,7 @@ public class JwtUtil {
     // Проверка валидности токена
     public Boolean validateToken(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+        boolean b = username.equals(userDetails.getUsername()) && !isTokenExpired(token);
+        return b;
     }
 }
