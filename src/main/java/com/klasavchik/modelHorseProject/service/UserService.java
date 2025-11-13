@@ -80,21 +80,40 @@ public class UserService {
     }
 
     @Transactional
-    public void update(UpdateUserRequest dto, MultipartFile avatarFile) throws IOException {
-        System.out.println("Starting update for user ID: " + dto.getId());
-        User user = userRepository.findById(dto.getId())
+    public void updatePassword(PasswordChangeRequest request, Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
+
+        // Проверяем, что старый пароль совпадает
+        if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
+            throw new RuntimeException("Старый пароль неверный");
+        }
+
+        // Проверяем, что новый пароль не совпадает со старым
+        if (passwordEncoder.matches(request.getNewPassword(), user.getPassword())) {
+            throw new RuntimeException("Новый пароль не должен совпадать со старым");
+        }
+
+        // Сохраняем новый пароль
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+    }
+
+//    @Transactional
+//    public void updateContactInform(UpdatePersonInformRequest userDto, Long currentUserId){
+//        // Проверяем уникальность email, если он изменился
+//        if (!user.getEmail().equals(dto.getEmail()) && userRepository.findByEmail(dto.getEmail()).isPresent()) {
+//            System.out.println("Email already exists: " + dto.getEmail());
+//            throw new RuntimeException("Email already exists");
+//        }
+//    }
+    @Transactional
+    public void updatePersonInform(UpdatePersonInformRequest dto, Long id, MultipartFile avatarFile) throws IOException {
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> {
-                    System.out.println("User not found for ID: " + dto.getId());
                     return new RuntimeException("User not found");
                 });
         System.out.println("User found: " + user.getEmail());
-
-        // Проверяем уникальность email, если он изменился
-        if (!user.getEmail().equals(dto.getEmail()) && userRepository.findByEmail(dto.getEmail()).isPresent()) {
-            System.out.println("Email already exists: " + dto.getEmail());
-            throw new RuntimeException("Email already exists");
-        }
-
 
         Profile profile = user.getProfile();
         if (profile == null) {
@@ -134,8 +153,6 @@ public class UserService {
             System.out.println("Invalid or null gender: " + dto.getGender());
         }
 
-        user.setEmail(dto.getEmail());
-        user.setPhoneNumber(dto.getPhoneNumber());
         user.setUpdatedAt(LocalDateTime.now());
 
         // Обработка аватарки

@@ -46,7 +46,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "GROUP BY u.id, p.firstName, p.lastName, p.nickname, p.avatar " +
             "ORDER BY u.id ASC")
     Page<UserSearchDTO> findBySearch(@Param("search") String search, Pageable pageable);
-
-
+    
 }
 

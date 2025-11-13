@@ -103,24 +103,51 @@ public class UserController {
         return ResponseEntity.ok(exists);
     }
 
-    @PutMapping("/update")
-    public ResponseEntity<?> update(
-            @RequestPart("userData") UpdateUserRequest userDto,
+    @PutMapping("/update-password")
+    public ResponseEntity<?> updatePassword(@RequestBody PasswordChangeRequest request) {
+        // Получаем текущего пользователя
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
+        Long currentUserId = userDetails.getUserId();
+
+        try {
+            // Вызываем сервис, который проверяет старый пароль, хэширует новый и сохраняет
+            userService.updatePassword(request, currentUserId);
+            return ResponseEntity.ok("Пароль успешно обновлён");
+        } catch (RuntimeException e) {
+            // Возможные ошибки: старый пароль неверный или новый совпадает со старым
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+// две ручки на изменения почты и номера
+//    @PutMapping("/updateContactInform")
+//    public ResponseEntity<?> updateContactInform(
+//            @RequestPart("userData") UpdatePersonInformRequest userDto) throws IOException {
+//        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+//        CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
+//        Long currentUserId = userDetails.getUserId();
+//
+//        try {
+//            userService.updateContactInform(userDto, currentUserId);
+//            return ResponseEntity.ok().build();
+//        } catch (RuntimeException e) {
+//            if (e.getMessage().equals("Email already exists")) {
+//                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email already exists");
+//            }
+//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+//        }
+//    }
+
+    @PutMapping("/updatePersonInform")
+    public ResponseEntity<?> updatePersonInform(
+            @RequestPart("userData") UpdatePersonInformRequest userDto,
             @RequestPart(value = "avatar", required = false) MultipartFile avatarFile) throws IOException {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
         Long currentUserId = userDetails.getUserId();
 
-        List<String> roles = auth.getAuthorities().stream()
-                .map(Object::toString)
-                .toList();
-
-        if (!roles.contains("ROLE_ADMIN") && !userDto.getId().equals(currentUserId)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied: You can only edit your own profile");
-        }
-
         try {
-            userService.update(userDto, avatarFile);
+            userService.updatePersonInform(userDto,currentUserId, avatarFile);
             return ResponseEntity.ok().build();
         } catch (RuntimeException e) {
             if (e.getMessage().equals("Email already exists")) {
