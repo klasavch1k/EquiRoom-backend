@@ -27,7 +27,7 @@ public class ModelMapper {
         return CardModelResponse.builder()
                 .id(model.getId())
                 .name(model.getName())
-                .artMasterName(model.getArtMasterName())
+                .modelMasterName(model.getModelMasterName())
                 .yearOfPainting(model.getYearOfPainting())
                 .salesInformation(model.getSalesInformation())
                 .avatar(model.getAvatar())

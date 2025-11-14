@@ -15,8 +15,8 @@ public class RewardRequest {
     @Size(max = 100, message = "Название награды не должно превышать 100 символов")
     private String rewardName;
 
-    @NotBlank(message = "Название организации обязательно")
-    @Size(max = 100, message = "Название организации не должно превышать 100 символов")
+    @NotBlank(message = "Название конкурса обязательно")
+    @Size(max = 100, message = "Название конкурса не должно превышать 100 символов")
     private String organizationName;
 
     @NotNull(message = "Год награды обязателен")

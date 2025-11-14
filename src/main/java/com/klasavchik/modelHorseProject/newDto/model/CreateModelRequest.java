@@ -20,11 +20,9 @@ public class CreateModelRequest {
     @Size(max = 255, message = "URL аватара слишком длинный")
     private String avatar;
 
-    @NotBlank(message = "Порода обязательна")
     @Size(max = 100, message = "Название породы не должно превышать 100 символов")
     private String breed;
 
-    @NotBlank(message = "Масть обязательна")
     @Size(max = 100, message = "Название масти не должно превышать 100 символов")
     private String horseColor;
 
@@ -35,11 +33,9 @@ public class CreateModelRequest {
     @Size(max = 100, message = "Имя мастера не должно превышать 100 символов")
     private String modelMasterName;
 
-    @NotBlank(message = "Имя автора росписи обязательно")
     @Size(max = 100, message = "Имя мастера не должно превышать 100 символов")
     private String artMasterName;
 
-    @NotNull(message = "Год росписи обязателен")
     @Min(value = 1800, message = "Год росписи не может быть меньше 1800")
     @Max(value = 2100, message = "Год росписи не может быть больше 2100")
     private Integer yearOfPainting;

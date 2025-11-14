@@ -40,6 +40,9 @@ public class User{
     @JoinColumn(name = "profile_id")
     private Profile profile;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "settings_id")
+    Settings settings;
     @Builder.Default
     @OneToMany(mappedBy = "follower", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<Follow> following = new HashSet<>();

@@ -1,10 +1,7 @@
 package com.klasavchik.modelHorseProject.service;
 
 import com.klasavchik.modelHorseProject.dto.*;
-import com.klasavchik.modelHorseProject.entity.Gender;
-import com.klasavchik.modelHorseProject.entity.Profile;
-import com.klasavchik.modelHorseProject.entity.Role;
-import com.klasavchik.modelHorseProject.entity.User;
+import com.klasavchik.modelHorseProject.entity.*;
 import com.klasavchik.modelHorseProject.mapper.UserMapper;
 import com.klasavchik.modelHorseProject.repository.FollowRepository;
 import com.klasavchik.modelHorseProject.repository.RoleRepository;
@@ -65,6 +62,7 @@ public class UserService {
         user.addRole(roleRepository.findByRoleName(roleUser.getRoleName()));
         user.setCreatedAt(LocalDate.now());
         user.setProfile(profile);
+        user.setSettings(Settings.builder().build());
         System.out.println("юзер готов");
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
             return "Email already exists";

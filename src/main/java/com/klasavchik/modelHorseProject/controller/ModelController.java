@@ -81,6 +81,13 @@ public class ModelController {
     @DeleteMapping("/{horseId}")
     @ResponseStatus(HttpStatus.OK)
     public void deleteModel(@PathVariable Long id, @PathVariable Long horseId) {
-        // TODO: добавить логику удаления
+        String token = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
+        Long currentUserId = jwtUtil.extractUserId(token);
+        List<String> roles = jwtUtil.extractRoles(token);
+
+        if (!roles.contains("ROLE_ADMIN") && !id.equals(currentUserId)) {
+            throw new RuntimeException("Access denied: You can only update your own collection");
+        }
+        modelService.delete(horseId);
     }
 }

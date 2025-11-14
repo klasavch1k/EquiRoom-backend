@@ -16,6 +16,6 @@ public class CardModelResponse {
     private String name;             // название лошади
     private String avatar;           // ссылка на аватар
     private String salesInformation; // информация о продаже
-    private String artMasterName;    // автор росписи
+    private String modelMasterName;    // автор модели
     private Integer yearOfPainting;  // год росписи
 }

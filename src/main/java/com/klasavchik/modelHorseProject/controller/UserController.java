@@ -53,6 +53,7 @@ public class UserController {
                 .orElseThrow(() -> new RuntimeException("Failed to retrieve user ID"));
         return new RegisterResponse(userId, message);
     }
+
     @GetMapping("/search")
     public Page<UserSearchDTO> searchUsers(
             @RequestParam("query") String query,
@@ -158,6 +159,7 @@ public class UserController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to upload avatar");
         }
     }
+
 
     //удаляет пользователя
     @DeleteMapping(value = "/{id}")

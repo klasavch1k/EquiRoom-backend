@@ -12,7 +12,7 @@ import java.util.Optional;
 public interface ModelRepository extends JpaRepository<Model, Long> {
 
     @Query("SELECT new com.klasavchik.modelHorseProject.newDto.model.CardModelResponse(" +
-            "m.id, m.name, m.avatar, m.salesInformation, m.artMasterName, m.yearOfPainting) " +
+            "m.id, m.name, m.avatar, m.salesInformation, m.modelMasterName, m.yearOfPainting) " +
             "FROM Model m " +
             "WHERE m.owner.id = :ownerId " +
             "ORDER BY m.createdAt DESC")
