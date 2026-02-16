@@ -1,15 +1,11 @@
 package com.klasavchik.modelHorseProject.mapper;
 
-import com.klasavchik.modelHorseProject.entity.Model;
-import com.klasavchik.modelHorseProject.entity.ModelMedia;
-import com.klasavchik.modelHorseProject.entity.Reward;
-import com.klasavchik.modelHorseProject.entity.User;
+import com.klasavchik.modelHorseProject.entity.model.Model;
 import com.klasavchik.modelHorseProject.newDto.model.*;
 import com.klasavchik.modelHorseProject.repository.ModelRepository;
 import com.klasavchik.modelHorseProject.repository.UserRepository;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 

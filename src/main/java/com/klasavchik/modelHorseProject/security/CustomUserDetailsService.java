@@ -1,7 +1,6 @@
 package com.klasavchik.modelHorseProject.security;
 
-import com.klasavchik.modelHorseProject.dto.UserAuthDto;
-import com.klasavchik.modelHorseProject.entity.User;
+import com.klasavchik.modelHorseProject.entity.user.User;
 import com.klasavchik.modelHorseProject.mapper.UserMapper;
 import com.klasavchik.modelHorseProject.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

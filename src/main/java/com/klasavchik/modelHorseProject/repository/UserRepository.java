@@ -1,7 +1,7 @@
 package com.klasavchik.modelHorseProject.repository;
 
 import com.klasavchik.modelHorseProject.dto.UserSearchDTO;
-import com.klasavchik.modelHorseProject.entity.User;
+import com.klasavchik.modelHorseProject.entity.user.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

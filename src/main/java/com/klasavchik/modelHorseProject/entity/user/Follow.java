@@ -1,4 +1,4 @@
-package com.klasavchik.modelHorseProject.entity;
+package com.klasavchik.modelHorseProject.entity.user;
 
 import jakarta.persistence.*;
 import lombok.*;

@@ -1,7 +1,6 @@
 package com.klasavchik.modelHorseProject.security;
 
 import com.klasavchik.modelHorseProject.dto.UserAuthDto;
-import com.klasavchik.modelHorseProject.entity.User;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -9,7 +8,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.List;
 
 @Builder
 @RequiredArgsConstructor

@@ -1,7 +1,7 @@
 package com.klasavchik.modelHorseProject.controller;
 
 import com.klasavchik.modelHorseProject.dto.*;
-import com.klasavchik.modelHorseProject.entity.User;
+import com.klasavchik.modelHorseProject.entity.user.User;
 import com.klasavchik.modelHorseProject.security.CustomUserDetails;
 import com.klasavchik.modelHorseProject.service.UserService;
 import lombok.RequiredArgsConstructor;

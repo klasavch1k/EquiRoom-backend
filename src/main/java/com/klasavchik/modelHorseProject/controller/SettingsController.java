@@ -1,6 +1,6 @@
 package com.klasavchik.modelHorseProject.controller;
 
-import com.klasavchik.modelHorseProject.entity.Theme;
+import com.klasavchik.modelHorseProject.entity.settings.Theme;
 import com.klasavchik.modelHorseProject.newDto.model.ThemeDto;
 import com.klasavchik.modelHorseProject.security.JwtUtil;
 import com.klasavchik.modelHorseProject.service.SettingsService;

@@ -1,9 +1,8 @@
 package com.klasavchik.modelHorseProject.service;
 
-import com.klasavchik.modelHorseProject.entity.Settings;
-import com.klasavchik.modelHorseProject.entity.Theme;
-import com.klasavchik.modelHorseProject.entity.User;
-import com.klasavchik.modelHorseProject.entity.Theme;
+import com.klasavchik.modelHorseProject.entity.settings.Settings;
+import com.klasavchik.modelHorseProject.entity.settings.Theme;
+import com.klasavchik.modelHorseProject.entity.user.User;
 import com.klasavchik.modelHorseProject.repository.SettingsRepository;
 import com.klasavchik.modelHorseProject.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

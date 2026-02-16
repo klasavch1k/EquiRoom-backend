@@ -1,6 +1,6 @@
 package com.klasavchik.modelHorseProject.newDto.model;
 
-import com.klasavchik.modelHorseProject.entity.MediaType;
+import com.klasavchik.modelHorseProject.entity.settings.MediaType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

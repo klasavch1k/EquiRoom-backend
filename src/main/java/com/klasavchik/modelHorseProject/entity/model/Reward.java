@@ -1,4 +1,4 @@
-package com.klasavchik.modelHorseProject.entity;
+package com.klasavchik.modelHorseProject.entity.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -12,22 +12,21 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-
 @Entity
-public class ModelMedia {
+public class Reward {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String url;
-
-    @Enumerated(EnumType.STRING)
-    private MediaType mediaType;
-    private LocalDateTime createdAt;
+    private String rewardName;
+    private String organizationName;
+    private Integer year;
+    private String avatar; //url
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "model_id")
     private Model model;
 
+    private LocalDateTime createdAt;
     @PrePersist
     public void prePersist() {
         this.createdAt = LocalDateTime.now();

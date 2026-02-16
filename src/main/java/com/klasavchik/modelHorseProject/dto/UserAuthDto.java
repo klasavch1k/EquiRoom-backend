@@ -1,13 +1,10 @@
 package com.klasavchik.modelHorseProject.dto;
 
-import com.klasavchik.modelHorseProject.entity.Role;
-import com.klasavchik.modelHorseProject.entity.UserRole;
+import com.klasavchik.modelHorseProject.entity.user.Role;
 import lombok.Builder;
 import lombok.Data;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Data

@@ -1,13 +1,11 @@
-package com.klasavchik.modelHorseProject.entity;
+package com.klasavchik.modelHorseProject.entity.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.klasavchik.modelHorseProject.entity.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Data
