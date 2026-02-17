@@ -22,4 +22,6 @@ public class ClassEntity {
 
     private String name;
     private String description;
+    @Column(name = "display_order")
+    private Integer displayOrder;   // null = не задан → сортируем по id или по имени
 }

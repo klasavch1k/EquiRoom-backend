@@ -1,8 +1,8 @@
 package com.klasavchik.modelHorseProject.controller;
 
-import com.klasavchik.modelHorseProject.newDto.model.CreateModelRequest;
-import com.klasavchik.modelHorseProject.newDto.model.CardModelResponse;
-import com.klasavchik.modelHorseProject.newDto.model.DetailModelResponse;
+import com.klasavchik.modelHorseProject.dto.model.CreateModelRequest;
+import com.klasavchik.modelHorseProject.dto.model.CardModelResponse;
+import com.klasavchik.modelHorseProject.dto.model.DetailModelResponse;
 import com.klasavchik.modelHorseProject.security.JwtUtil;
 import com.klasavchik.modelHorseProject.service.ModelService;
 import jakarta.validation.Valid;

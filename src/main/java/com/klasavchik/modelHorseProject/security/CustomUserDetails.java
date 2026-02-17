@@ -1,6 +1,6 @@
 package com.klasavchik.modelHorseProject.security;
 
-import com.klasavchik.modelHorseProject.dto.UserAuthDto;
+import com.klasavchik.modelHorseProject.dto.user.UserAuthDto;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;

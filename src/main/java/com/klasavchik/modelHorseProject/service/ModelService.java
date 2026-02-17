@@ -6,7 +6,7 @@ import com.klasavchik.modelHorseProject.entity.model.Reward;
 import com.klasavchik.modelHorseProject.entity.settings.MediaType;
 import com.klasavchik.modelHorseProject.entity.user.User;
 import com.klasavchik.modelHorseProject.mapper.ModelMapper;
-import com.klasavchik.modelHorseProject.newDto.model.*;
+import com.klasavchik.modelHorseProject.dto.model.*;
 import com.klasavchik.modelHorseProject.repository.ModelRepository;
 import com.klasavchik.modelHorseProject.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

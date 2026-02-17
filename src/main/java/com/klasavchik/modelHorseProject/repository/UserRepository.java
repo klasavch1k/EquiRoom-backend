@@ -1,6 +1,6 @@
 package com.klasavchik.modelHorseProject.repository;
 
-import com.klasavchik.modelHorseProject.dto.UserSearchDTO;
+import com.klasavchik.modelHorseProject.dto.user.UserSearchDTO;
 import com.klasavchik.modelHorseProject.entity.user.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -39,7 +39,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Boolean existsByNickname(@Param("nickname") String nickname);
 
 
-    @Query("SELECT new com.klasavchik.modelHorseProject.dto.UserSearchDTO(" +
+    @Query("SELECT new com.klasavchik.modelHorseProject.dto.user.UserSearchDTO(" +
             "u.id, p.firstName, p.lastName, p.nickname, p.avatar, COUNT(m.id)) " +
             "FROM User u JOIN u.profile p LEFT JOIN Model m ON m.owner = u " +
             "WHERE LOWER(p.firstName) LIKE :search OR LOWER(p.lastName) LIKE :search OR LOWER(p.nickname) LIKE :search " +

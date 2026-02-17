@@ -1,7 +1,7 @@
 package com.klasavchik.modelHorseProject.repository;
 
 import com.klasavchik.modelHorseProject.entity.model.Model;
-import com.klasavchik.modelHorseProject.newDto.model.CardModelResponse;
+import com.klasavchik.modelHorseProject.dto.model.CardModelResponse;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,7 +11,7 @@ import java.util.Optional;
 
 public interface ModelRepository extends JpaRepository<Model, Long> {
 
-    @Query("SELECT new com.klasavchik.modelHorseProject.newDto.model.CardModelResponse(" +
+    @Query("SELECT new com.klasavchik.modelHorseProject.dto.model.CardModelResponse(" +
             "m.id, m.name, m.avatar, m.salesInformation, m.modelMasterName, m.yearOfPainting) " +
             "FROM Model m " +
             "WHERE m.owner.id = :ownerId " +

@@ -1,8 +1,8 @@
 package com.klasavchik.modelHorseProject.controller;
 
-import com.klasavchik.modelHorseProject.newDto.show.CreateShowRequest;
-import com.klasavchik.modelHorseProject.newDto.show.ShowCardResponse;
-import com.klasavchik.modelHorseProject.newDto.show.ShowShortResponse;
+import com.klasavchik.modelHorseProject.dto.show.CreateShowRequest;
+import com.klasavchik.modelHorseProject.dto.show.ShowCardResponse;
+import com.klasavchik.modelHorseProject.dto.show.ShowShortResponse;
 import com.klasavchik.modelHorseProject.security.CustomUserDetails;
 import com.klasavchik.modelHorseProject.service.ShowService;
 import jakarta.validation.Valid;

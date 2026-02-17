@@ -1,9 +1,9 @@
 package com.klasavchik.modelHorseProject.service;
 
-import com.klasavchik.modelHorseProject.dto.*;
 import com.klasavchik.modelHorseProject.entity.settings.Settings;
 import com.klasavchik.modelHorseProject.entity.user.*;
 import com.klasavchik.modelHorseProject.mapper.UserMapper;
+import com.klasavchik.modelHorseProject.dto.user.*;
 import com.klasavchik.modelHorseProject.repository.FollowRepository;
 import com.klasavchik.modelHorseProject.repository.RoleRepository;
 import com.klasavchik.modelHorseProject.repository.UserRepository;

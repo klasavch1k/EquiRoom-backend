@@ -25,6 +25,8 @@ public class Section {
 
     private String name;
     private String description;
+    @Column(name = "display_order")
+    private Integer displayOrder;   // null = не задан → сортируем по id или по имени
 
     @Builder.Default
     @OneToMany(mappedBy = "section", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)

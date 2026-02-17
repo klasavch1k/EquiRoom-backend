@@ -26,6 +26,8 @@ public class Division {
     private String name;
     private String type;        // realistic_coats, fantasy, ammo и т.д.
     private String description;
+    @Column(name = "display_order")
+    private Integer displayOrder;   // null = не задан → сортируем по id или по имени
 
     @Builder.Default
     @OneToMany(mappedBy = "division", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)

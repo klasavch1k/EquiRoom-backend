@@ -36,6 +36,9 @@ public class Entry {
     private String modelName;
     private String authorIfJudge;
     private String notes;
+    private Boolean admitted = false;  // допущен ли (проверили и одобрили)
+    private Boolean judged = false;    // оценен ли (судья поставил баллы/место)
+
 
     @Builder.Default
     @OneToMany(mappedBy = "entry", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)

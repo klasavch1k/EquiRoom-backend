@@ -1,9 +1,9 @@
 package com.klasavchik.modelHorseProject.mapper;
 
-import com.klasavchik.modelHorseProject.dto.*;
 import com.klasavchik.modelHorseProject.entity.user.Profile;
 import com.klasavchik.modelHorseProject.entity.user.User;
 import com.klasavchik.modelHorseProject.entity.user.UserRole;
+import com.klasavchik.modelHorseProject.dto.user.*;
 import com.klasavchik.modelHorseProject.repository.FollowRepository;
 import com.klasavchik.modelHorseProject.repository.ModelRepository;
 import org.springframework.stereotype.Component;

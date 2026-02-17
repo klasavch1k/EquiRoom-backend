@@ -24,7 +24,6 @@ public class Judge {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;          // может быть null
-
     private String name;        // если внешний судья
     private String bio;
 }

@@ -1,7 +1,7 @@
 package com.klasavchik.modelHorseProject.mapper;
 
 import com.klasavchik.modelHorseProject.entity.model.Model;
-import com.klasavchik.modelHorseProject.newDto.model.*;
+import com.klasavchik.modelHorseProject.dto.model.*;
 import com.klasavchik.modelHorseProject.repository.ModelRepository;
 import com.klasavchik.modelHorseProject.repository.UserRepository;
 import org.springframework.stereotype.Component;
