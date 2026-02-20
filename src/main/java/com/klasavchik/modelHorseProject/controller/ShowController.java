@@ -4,6 +4,7 @@ import com.klasavchik.modelHorseProject.dto.show.CreateShowRequest;
 import com.klasavchik.modelHorseProject.dto.show.ShowCardResponse;
 import com.klasavchik.modelHorseProject.dto.show.ShowShortResponse;
 import com.klasavchik.modelHorseProject.dto.show.UpdateShowRequest;
+import com.klasavchik.modelHorseProject.dto.show.price.AdditionalPriceResponse;
 import com.klasavchik.modelHorseProject.entity.ShowEntity.Show;
 import com.klasavchik.modelHorseProject.repository.show.ShowRepository;
 import com.klasavchik.modelHorseProject.security.CustomUserDetails;
@@ -97,6 +98,19 @@ public class ShowController {
         return ResponseEntity.ok(pagedResult);
     }
 
+    @GetMapping("/all")
+    public ResponseEntity<Page<ShowCardResponse>> getAllShows(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "24") int size) {
+
+        int safeSize = Math.max(1, Math.min(size, 100));
+        Pageable pageable = PageRequest.of(page, safeSize);
+
+        Page<ShowCardResponse> result = showService.getAllPublicShowsPaged(pageable);
+
+        return ResponseEntity.ok(result);
+    }
+
     @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ShowShortResponse updateShow(
@@ -108,5 +122,19 @@ public class ShowController {
         Long userId = details.getUserId();
 
         return showService.updateShowBasicFields(id, request, userId);
+    }
+
+    // ShowController
+
+    @GetMapping("/shows/{showId}/additional-price")
+    public ResponseEntity<AdditionalPriceResponse> getAdditionalPrice(@PathVariable Long showId) {
+        Show show = showRepository.findById(showId)
+                .orElseThrow(() -> new EntityNotFoundException("Шоу не найдено"));
+
+        AdditionalPriceResponse response = AdditionalPriceResponse.builder()
+                .additionalPrice(show.getAdditionalPrice())  // null = бесплатно за доп. модели
+                .build();
+
+        return ResponseEntity.ok(response);
     }
 }

@@ -36,12 +36,9 @@ public class Registration {
 
     private Integer lotteryTickets;
     private boolean isSponsor;
-    private String sponsorLink;
     private boolean isJudge;
 
-    private Integer totalModels;
     private Integer additionalModels;
-
     private String status;      // pending, paid, approved, cancelled...
 
     private LocalDateTime createdAt;

@@ -285,5 +285,52 @@ public class ShowService {
     show.setAdditionalPrice(additionalPrice); // null = бесплатно
     showRepository.save(show);
 }
+    @Transactional(readOnly = true)
+    public Page<ShowCardResponse> getAllPublicShowsPaged(Pageable pageable) {
+        // Защита от кривых параметров
+        int safeSize = Math.max(1, Math.min(pageable.getPageSize(), 100));
+
+        // Сортировка: сначала не завершённые (идут сейчас), потом завершённые
+        // Внутри каждой группы — от новых к старым
+        Sort sort = Sort.by(
+                Sort.Order.asc("isCompleted"),     // false (0) → true (1) → идущие первыми
+                Sort.Order.desc("startDate")       // внутри группы — самые свежие сверху
+        );
+
+        Pageable sortedPageable = PageRequest.of(
+                pageable.getPageNumber(),
+                safeSize,
+                sort
+        );
+
+        Page<Show> showsPage = showRepository.findPublicShows(sortedPageable);
+
+        return showsPage.map(show -> {
+            // Та же логика, что в getMyShowsPaged — копипастим для консистентности
+            List<String> organizerNicks = show.getOrganizer().stream()
+                    .filter(sc -> sc.getUser() != null && sc.getUser().getProfile() != null)
+                    .map(sc -> {
+                        String first = sc.getUser().getProfile().getFirstName();
+                        String last = sc.getUser().getProfile().getLastName();
+                        String name = (first != null ? first.trim() : "") + " " + (last != null ? last.trim() : "");
+                        return name.trim().isEmpty() ? sc.getUser().getEmail() : name;
+                    })
+                    .distinct()
+                    .sorted()
+                    .collect(Collectors.toList());
+
+            return ShowCardResponse.builder()
+                    .id(show.getId())
+                    .name(show.getName())
+                    .bannerUrl(show.getBannerUrl())
+                    .startDate(show.getStartDate())
+                    .endDate(show.getEndDate())
+                    .isPaid(show.isPaid())
+                    .isCompleted(show.isCompleted())
+                    .additionalPrice(show.getAdditionalPrice())
+                    .organizers(organizerNicks.isEmpty() ? List.of("Организатор не указан") : organizerNicks)
+                    .build();
+        });
+    }
 
 }

@@ -1,7 +1,10 @@
 package com.klasavchik.modelHorseProject.controller;
 
 import com.klasavchik.modelHorseProject.dto.show.price.CreateTicketPriceDto;
+import com.klasavchik.modelHorseProject.dto.show.price.TicketPriceDto;
 import com.klasavchik.modelHorseProject.dto.show.price.UpdateAdditionalPriceDto;
+import com.klasavchik.modelHorseProject.entity.ShowEntity.TicketPrice;
+import com.klasavchik.modelHorseProject.repository.show.TicketPriceRepository;
 import com.klasavchik.modelHorseProject.security.CustomUserDetails;
 import com.klasavchik.modelHorseProject.service.ShowService;
 import com.klasavchik.modelHorseProject.service.TicketPriceService;
@@ -13,6 +16,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/shows")
@@ -20,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 public class TicketPriceController {
 
     private final TicketPriceService ticketPriceService;
+    private final TicketPriceRepository ticketPriceRepository;
     private final ShowService showService; // если нужно проверять права
 
     // Добавление одной цены
@@ -62,6 +69,24 @@ public class TicketPriceController {
         // твой метод, как в других контроллерах
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         return ((CustomUserDetails) auth.getPrincipal()).getUserId();
+    }
+    // В ShowController или новом TicketPriceController
+
+    @GetMapping("/shows/{showId}/ticket-prices")
+    public ResponseEntity<List<TicketPriceDto>> getTicketPrices(@PathVariable Long showId) {
+        List<TicketPrice> prices = ticketPriceRepository.findByShowId(showId);
+
+        List<TicketPriceDto> dtos = prices.stream()
+                .map(p -> TicketPriceDto.builder()
+                        .id(p.getId())
+                        .type(p.getType())
+                        .price(p.getPrice())
+                        .includedModels(p.getIncludedModels())
+                        .description(p.getDescription())
+                        .build())
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(dtos);
     }
 
 }

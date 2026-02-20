@@ -22,4 +22,12 @@ public interface ShowRepository extends JpaRepository<Show, Long> {
     WHERE (sc.user.id = :userId OR j.user.id = :userId)
 """)
     Page<Show> findMyShows(@Param("userId") Long userId, Pageable pageable);
+
+    @Query("""
+    SELECT s FROM Show s
+    WHERE s.startDate <= CURRENT_DATE
+""")
+    Page<Show> findPublicShows(Pageable pageable);
+
+    Show findShowById(Long id);
 }
