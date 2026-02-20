@@ -8,4 +8,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TicketPriceRepository extends JpaRepository<TicketPrice, Long> {
     void deleteByShowId(Long showId);
+
+    boolean existsByShowIdAndType(Long showId, String type);
 }

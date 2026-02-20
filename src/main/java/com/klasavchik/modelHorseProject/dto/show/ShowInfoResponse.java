@@ -1,5 +1,6 @@
 package com.klasavchik.modelHorseProject.dto.show;
 
+import com.klasavchik.modelHorseProject.dto.show.price.TicketPriceDto;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;

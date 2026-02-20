@@ -1,20 +1,45 @@
 package com.klasavchik.modelHorseProject.dto.show;
 
-import lombok.Data;
-
+import jakarta.validation.constraints.*;
+import lombok.*;
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class UpdateShowRequest {
+
+    @Size(min = 3, max = 120, message = "Название от 3 до 120 символов")
     private String name;
+
+    @Size(max = 2000, message = "Описание слишком длинное")
     private String description;
+
+    @FutureOrPresent(message = "Дата начала не может быть в прошлом")
     private LocalDate startDate;
+
+    @FutureOrPresent(message = "Дата окончания не может быть в прошлом")
     private LocalDate endDate;
-    private String rulesFileUrl;           // можно обновлять ссылку
-    private String bannerUrl;              // можно обновлять ссылку
+
+    // true = включена лотерея среди участников
     private Boolean lotteryEnabled;
+
+    // цена за дополнительную модель (null или 0 = бесплатно)
     private Integer additionalPrice;
+
+    // true = платное участие, false = бесплатное
     private Boolean isPaid;
+
+    // максимум дополнительных фото в одной заявке
+    @Min(value = 0, message = "Не может быть отрицательным")
+    @Max(value = 10, message = "Слишком много — максимум 10")
     private Integer maxAdditionalPhotos;
-    // isCompleted не даём менять через эту ручку — только отдельно
+
+    // если в запросе придёт true → хотим удалить текущий баннер
+    private Boolean deleteBanner;
+
+    // если в запросе придёт true → хотим удалить текущий регламент
+    private Boolean deleteRules;
 }

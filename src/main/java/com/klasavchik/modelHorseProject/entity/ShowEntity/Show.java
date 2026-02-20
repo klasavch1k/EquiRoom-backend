@@ -5,10 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Data
 @NoArgsConstructor
@@ -42,7 +39,7 @@ public class Show {
 
     @Builder.Default
     @OneToMany(mappedBy = "show", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private Set<ShowCreator> creators = new HashSet<>();
+    private Set<ShowCreator> organizer = new HashSet<>();
 
     @Builder.Default
     @OneToMany(mappedBy = "show", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
@@ -73,5 +70,22 @@ public class Show {
     @PreUpdate
     public void preUpdate() {
         this.updatedAt = LocalDateTime.now();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Show show = (Show) o;
+        return Objects.equals(id, show.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
+    public boolean isStarted() {
+        return startDate != null && !startDate.isAfter(LocalDate.now());
     }
 }

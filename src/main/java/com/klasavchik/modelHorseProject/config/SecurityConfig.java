@@ -44,6 +44,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/v1/user/*/collection/**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/v1/user/*/collection/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/user/*/collection/**").authenticated()
+                        .requestMatchers("/api/v1/shows/**").authenticated()
                         .requestMatchers("/api/v1/user/**").authenticated()
                         .anyRequest().authenticated()
                 )
@@ -56,7 +57,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of("http://localhost:3000"));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(List.of("*"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

@@ -8,6 +8,6 @@ import lombok.Data;
 public class JudgeShortDto {
     private Long id;
     private Long userId;       // null, если внешний судья
-    private String name;       // имя судьи (обязательно)
+    private String shortName;
     private String bio;        // опционально
 }

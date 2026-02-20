@@ -1,5 +1,6 @@
 package com.klasavchik.modelHorseProject.dto.show;
 
+import com.klasavchik.modelHorseProject.dto.show.price.TicketPriceDto;
 import lombok.Builder;
 import lombok.Data;
 
@@ -24,6 +25,8 @@ public class ShowFullInfoResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private boolean isCompleted;
+    private boolean isCurrentUserOrganizer;
+    private boolean isCurrentUserJudge;
 
     private List<OrganizerShortDto> organizers;
     private List<TicketPriceDto> ticketPrices;

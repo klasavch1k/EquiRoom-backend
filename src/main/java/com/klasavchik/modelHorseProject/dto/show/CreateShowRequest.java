@@ -1,5 +1,6 @@
 package com.klasavchik.modelHorseProject.dto.show;
 
+import com.klasavchik.modelHorseProject.dto.show.price.TicketPriceDto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

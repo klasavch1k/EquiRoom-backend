@@ -3,6 +3,7 @@ package com.klasavchik.modelHorseProject.entity.ShowEntity;
 
 import com.klasavchik.modelHorseProject.entity.user.User;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Data
@@ -10,7 +11,8 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "judges")
+@Table(name = "judges", uniqueConstraints = @UniqueConstraint(columnNames = {"show_id", "user_id"}))
+
 public class Judge {
 
     @Id
@@ -23,7 +25,7 @@ public class Judge {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    private User user;          // может быть null
-    private String name;        // если внешний судья
+    @NotNull
+    private User user;
     private String bio;
 }

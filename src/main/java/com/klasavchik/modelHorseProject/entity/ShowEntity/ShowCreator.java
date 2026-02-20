@@ -10,7 +10,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "show_creators")
+@Table(name = "show_creators", uniqueConstraints = @UniqueConstraint(columnNames = {"show_id", "user_id"}))
 public class ShowCreator {
 
     @Id

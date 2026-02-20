@@ -98,25 +98,5 @@ public class ContestStructureController {
     public ShowFullInfoResponse getShowFullInfo(@PathVariable Long id) {
         return contestStructureService.getShowFullInfo(id);
     }
-    // Обновление основных полей шоу
-    @PatchMapping("/shows/{showId}")
-    public void updateShow(
-            @PathVariable Long showId,
-            @RequestBody UpdateShowRequest request) {
 
-        Long userId = getCurrentUserId();
-        Show updated = contestStructureService.updateShow(showId, request, userId);
-        // или полный ShowFullInfoResponse, как у тебя сейчас
-    }
-
-    // Полная замена списка цен билетов
-    @PutMapping("/shows/{showId}/ticket-prices")
-    @ResponseStatus(HttpStatus.OK)
-    public void updateTicketPrices(
-            @PathVariable Long showId,
-            @RequestBody UpdateTicketPricesRequest request) {
-
-        Long userId = getCurrentUserId();
-        contestStructureService.updateTicketPrices(showId, request.getTicketPrices(), userId);
-    }
 }

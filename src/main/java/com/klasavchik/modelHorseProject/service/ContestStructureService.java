@@ -1,17 +1,20 @@
 package com.klasavchik.modelHorseProject.service;
 
 import com.klasavchik.modelHorseProject.dto.show.*;
+import com.klasavchik.modelHorseProject.dto.show.price.TicketPriceDto;
 import com.klasavchik.modelHorseProject.entity.ShowEntity.*;
 import com.klasavchik.modelHorseProject.entity.user.User;
 import com.klasavchik.modelHorseProject.repository.show.*;
+import com.klasavchik.modelHorseProject.security.CustomUserDetails;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,8 +29,15 @@ public class ContestStructureService {
     private final SectionRepository sectionRepository;
     private final EntryRepository entryRepository;
     private final ClassRepository classRepository;  // ClassEntityRepository
+    private final ShowService showService;
 
-
+    private Long getCurrentUserId() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof CustomUserDetails) {
+            return ((CustomUserDetails) auth.getPrincipal()).getUserId();
+        }
+        throw new IllegalStateException("Пользователь не аутентифицирован");
+    }
     public void createDivision(Long showId, CreateDivisionDto dto, Long userId) {
         Show show = showRepository.findById(showId)
                 .orElseThrow(() -> new EntityNotFoundException("Шоу не найдено"));
@@ -101,7 +111,7 @@ public class ContestStructureService {
 
     // Проверка прав (можно расширить на co-organizer)
     private void checkCanEditStructure(Show show, Long userId) {
-        boolean isAllowed = show.getCreators().stream()
+        boolean isAllowed = show.getOrganizer().stream()
                 .anyMatch(sc -> sc.getUser().getId().equals(userId) &&
                         ("creator".equals(sc.getRole()) || "co-organizer".equals(sc.getRole())));
         if (!isAllowed) {
@@ -113,7 +123,7 @@ public class ContestStructureService {
         Show show = showRepository.findById(showId)
                 .orElseThrow(() -> new EntityNotFoundException("Шоу не найдено"));
 
-        List<OrganizerDto> organizers = show.getCreators().stream()
+        List<OrganizerDto> organizers = show.getOrganizer().stream()
                 .map(sc -> {
                     User u = sc.getUser();
                     String nick = u.getProfile().getFirstName() + " " +u.getProfile().getLastName();
@@ -142,6 +152,7 @@ public class ContestStructureService {
                 .ticketPrices(prices)
                 .build();
     }
+
     @Transactional(readOnly = true)
     public ShowStructureResponse getShowStructure(Long showId) {
         Show show = showRepository.findById(showId)
@@ -196,6 +207,7 @@ public class ContestStructureService {
 
         return new ShowStructureResponse(showId, divDtos);
     }
+
     @Transactional
     public void deleteDivision(Long divisionId, Long userId) {
         Division division = divisionRepository.findById(divisionId)
@@ -244,12 +256,13 @@ public class ContestStructureService {
         classRepository.delete(clazz);
     }
     @Transactional(readOnly = true)
+
     public ShowFullInfoResponse getShowFullInfo(Long showId) {
         Show show = showRepository.findById(showId)
                 .orElseThrow(() -> new EntityNotFoundException("Шоу не найдено"));
 
         // Организаторы
-        List<OrganizerShortDto> organizers = show.getCreators().stream()
+        List<OrganizerShortDto> organizers = show.getOrganizer().stream()
                 .map(sc -> {
                     User user = sc.getUser();
                     String nick =user.getProfile().getFirstName() +" " + user.getProfile().getLastName();
@@ -260,6 +273,7 @@ public class ContestStructureService {
                             .build();
                 })
                 .collect(Collectors.toList());
+
 
         // Билеты
         List<TicketPriceDto> tickets = show.getTicketPrices().stream()
@@ -273,14 +287,16 @@ public class ContestStructureService {
                 .collect(Collectors.toList());
 
         // Судьи
+
         List<JudgeShortDto> judges = show.getJudges().stream()
                 .map(j -> JudgeShortDto.builder()
                         .id(j.getId())
-                        .userId(j.getUser() != null ? j.getUser().getId() : null)
-                        .name(j.getName())
+                        .userId(j.getUser().getId())
+                        .shortName(j.getUser().getProfile().getFirstName() + " " + j.getUser().getProfile().getLastName())
                         .bio(j.getBio())
                         .build())
                 .collect(Collectors.toList());
+
 
         return ShowFullInfoResponse.builder()
                 .id(show.getId())
@@ -300,51 +316,8 @@ public class ContestStructureService {
                 .organizers(organizers)
                 .ticketPrices(tickets)
                 .judges(judges)
+                .isCurrentUserJudge(showService.isOrganizer(show,getCurrentUserId()))
+                .isCurrentUserOrganizer(showService.isOrganizer(show,getCurrentUserId()))
                 .build();
-    }
-    @Transactional
-    public Show updateShow(Long showId, UpdateShowRequest dto, Long userId) {
-        Show show = showRepository.findById(showId)
-                .orElseThrow(() -> new EntityNotFoundException("Шоу не найдено"));
-
-        checkCanEditStructure(show, userId);  // только создатель/со-организатор
-
-        // Поля, которые обновляем только если переданы
-        if (dto.getName() != null)              show.setName(dto.getName().trim());
-        if (dto.getDescription() != null)       show.setDescription(dto.getDescription().trim());
-        if (dto.getStartDate() != null)         show.setStartDate(dto.getStartDate());
-        if (dto.getEndDate() != null)           show.setEndDate(dto.getEndDate());
-        if (dto.getRulesFileUrl() != null)      show.setRulesFileUrl(dto.getRulesFileUrl());
-        if (dto.getBannerUrl() != null)         show.setBannerUrl(dto.getBannerUrl());
-        if (dto.getLotteryEnabled() != null)    show.setLotteryEnabled(dto.getLotteryEnabled());
-        if (dto.getAdditionalPrice() != null)   show.setAdditionalPrice(dto.getAdditionalPrice());
-        if (dto.getIsPaid() != null)            show.setPaid(dto.getIsPaid());
-        if (dto.getMaxAdditionalPhotos() != null) show.setMaxAdditionalPhotos(dto.getMaxAdditionalPhotos());
-
-        show.setUpdatedAt(LocalDateTime.now());
-        return showRepository.save(show);
-    }
-
-    @Transactional
-    public void updateTicketPrices(Long showId, List<UpdateTicketPriceDto> dtos, Long userId) {
-        Show show = showRepository.findById(showId)
-                .orElseThrow(() -> new EntityNotFoundException("Шоу не найдено"));
-
-        checkCanEditStructure(show, userId);
-
-        // Удаляем старые цены
-        ticketPriceRepository.deleteByShowId(showId);
-
-        // Создаём/обновляем новые
-        dtos.forEach(dto -> {
-            TicketPrice tp = TicketPrice.builder()
-                    .show(show)
-                    .type(dto.getType())
-                    .price(dto.getPrice())
-                    .includedModels(dto.getIncludedModels())
-                    .description(dto.getDescription())
-                    .build();
-            ticketPriceRepository.save(tp);
-        });
     }
 }
