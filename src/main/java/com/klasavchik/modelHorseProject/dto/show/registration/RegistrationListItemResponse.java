@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 public class RegistrationListItemResponse {
 
     private Long registrationId;            // id регистрации
+    private String applicationNumber;       // номер заявки (человеческий)
 
     // Информация об участнике
     private Long userId;
@@ -32,6 +33,7 @@ public class RegistrationListItemResponse {
     private boolean isSponsor;
     private boolean isJudge;
     private Integer lotteryTickets;
+    private Integer totalCost;              // Итоговая стоимость (тариф + доп. модели)
     private String status;                  // PENDING, PAID, APPROVED, CANCELLED
 
     private LocalDateTime createdAt;

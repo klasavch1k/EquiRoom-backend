@@ -181,4 +181,15 @@ public class UserController {
     public void unfollow(@PathVariable("id") Long id) {
         userService.unfollow(id);
     }
+
+    @PutMapping("/me/vk-nickname")
+    public ResponseEntity<Void> updateVkNickname(@RequestBody UpdateVkNicknameRequest request) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
+        Long currentUserId = userDetails.getUserId();
+
+        userService.updateVkNickname(currentUserId, request.getVkNickname());
+        return ResponseEntity.ok().build();
+    }
 }
+

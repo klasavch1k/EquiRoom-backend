@@ -1,9 +1,8 @@
-package com.klasavchik.modelHorseProject.dto.show;
+package com.klasavchik.modelHorseProject.dto.show.base;
 
 import jakarta.validation.constraints.*;
 import lombok.*;
 import java.time.LocalDate;
-import java.util.List;
 
 @Data
 @Builder

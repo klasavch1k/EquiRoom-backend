@@ -1,15 +1,17 @@
 package com.klasavchik.modelHorseProject.service;
 
-import com.klasavchik.modelHorseProject.dto.show.CreateShowRequest;
-import com.klasavchik.modelHorseProject.dto.show.ShowCardResponse;
-import com.klasavchik.modelHorseProject.dto.show.ShowShortResponse;
-import com.klasavchik.modelHorseProject.dto.show.UpdateShowRequest;
+import com.klasavchik.modelHorseProject.dto.show.base.CreateShowRequest;
+import com.klasavchik.modelHorseProject.dto.show.base.ShowCardResponse;
+import com.klasavchik.modelHorseProject.dto.show.base.ShowShortResponse;
+import com.klasavchik.modelHorseProject.dto.show.base.UpdateShowRequest;
 import com.klasavchik.modelHorseProject.entity.ShowEntity.Show;
 import com.klasavchik.modelHorseProject.entity.ShowEntity.ShowCreator;
+import com.klasavchik.modelHorseProject.entity.ShowEntity.StatusRegOfShow;
 import com.klasavchik.modelHorseProject.entity.ShowEntity.TicketPrice;
 import com.klasavchik.modelHorseProject.entity.user.User;
 import com.klasavchik.modelHorseProject.repository.UserRepository;
 import com.klasavchik.modelHorseProject.repository.show.JudgeRepository;
+import com.klasavchik.modelHorseProject.repository.show.RegistrationRepository;
 import com.klasavchik.modelHorseProject.repository.show.ShowCreatorRepository;
 import com.klasavchik.modelHorseProject.repository.show.ShowRepository;
 import com.klasavchik.modelHorseProject.repository.show.TicketPriceRepository;
@@ -25,7 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -39,6 +40,7 @@ public class ShowService {
     private final TicketPriceRepository ticketPriceRepository;
     private final UserRepository userRepository;
     private final FileStorageService fileStorageService;
+    private final RegistrationRepository registrationRepository;
 
     // ─── Проверки прав доступа (унифицированные) ────────────────────────────────────────
 
@@ -232,6 +234,29 @@ public class ShowService {
                     .sorted()
                     .collect(Collectors.toList());
 
+            // Получаем информацию о заявке текущего пользователя на это шоу
+            StatusRegOfShow registrationStatus = null;
+            Long registrationId = null;
+            String applicationNumber = null;
+            Integer totalSum = null;
+
+            var registration = registrationRepository.findByShowIdAndUserId(show.getId(), userId);
+            if (registration.isPresent()) {
+                registrationStatus = registration.get().getStatus();
+                registrationId = registration.get().getId();
+                applicationNumber = registration.get().getApplicationNumber();
+
+                Integer ticketPrice = registration.get().getTicketPrice() != null
+                        ? registration.get().getTicketPrice().getPrice()
+                        : null;
+                int safeTicketPrice = ticketPrice != null ? ticketPrice : 0;
+                int safeAdditionalPrice = show.getAdditionalPrice() != null ? show.getAdditionalPrice() : 0;
+                int safeAdditionalModels = registration.get().getAdditionalModels() != null
+                        ? registration.get().getAdditionalModels()
+                        : 0;
+                totalSum = safeTicketPrice + (safeAdditionalPrice * safeAdditionalModels);
+            }
+
             return ShowCardResponse.builder()
                     .id(show.getId())
                     .name(show.getName())
@@ -242,6 +267,10 @@ public class ShowService {
                     .isCompleted(show.isCompleted())
                     .additionalPrice(show.getAdditionalPrice())
                     .organizers(organizerNicks.isEmpty() ? List.of("Организатор не указан") : organizerNicks)
+                    .registrationStatus(registrationStatus)
+                    .registrationId(registrationId)
+                    .applicationNumber(applicationNumber)
+                    .totalSum(totalSum)
                     .build();
         });
     }
@@ -286,7 +315,7 @@ public class ShowService {
     showRepository.save(show);
 }
     @Transactional(readOnly = true)
-    public Page<ShowCardResponse> getAllPublicShowsPaged(Pageable pageable) {
+    public Page<ShowCardResponse> getAllPublicShowsPaged(Pageable pageable, Long userId) {
         // Защита от кривых параметров
         int safeSize = Math.max(1, Math.min(pageable.getPageSize(), 100));
 
@@ -319,6 +348,31 @@ public class ShowService {
                     .sorted()
                     .collect(Collectors.toList());
 
+            // Получаем информацию о заявке текущего пользователя на это шоу (если аутентифицирован)
+            StatusRegOfShow registrationStatus = null;
+            Long registrationId = null;
+            String applicationNumber = null;
+            Integer totalSum = null;
+
+            if (userId != null) {
+                var registration = registrationRepository.findByShowIdAndUserId(show.getId(), userId);
+                if (registration.isPresent()) {
+                    registrationStatus = registration.get().getStatus();
+                    registrationId = registration.get().getId();
+                    applicationNumber = registration.get().getApplicationNumber();
+
+                    Integer ticketPrice = registration.get().getTicketPrice() != null
+                            ? registration.get().getTicketPrice().getPrice()
+                            : null;
+                    int safeTicketPrice = ticketPrice != null ? ticketPrice : 0;
+                    int safeAdditionalPrice = show.getAdditionalPrice() != null ? show.getAdditionalPrice() : 0;
+                    int safeAdditionalModels = registration.get().getAdditionalModels() != null
+                            ? registration.get().getAdditionalModels()
+                            : 0;
+                    totalSum = safeTicketPrice + (safeAdditionalPrice * safeAdditionalModels);
+                }
+            }
+
             return ShowCardResponse.builder()
                     .id(show.getId())
                     .name(show.getName())
@@ -329,6 +383,10 @@ public class ShowService {
                     .isCompleted(show.isCompleted())
                     .additionalPrice(show.getAdditionalPrice())
                     .organizers(organizerNicks.isEmpty() ? List.of("Организатор не указан") : organizerNicks)
+                    .registrationStatus(registrationStatus)
+                    .registrationId(registrationId)
+                    .applicationNumber(applicationNumber)
+                    .totalSum(totalSum)
                     .build();
         });
     }

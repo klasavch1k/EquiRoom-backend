@@ -1,7 +1,6 @@
 package com.klasavchik.modelHorseProject.controller;
 
-import com.klasavchik.modelHorseProject.dto.show.*;
-import com.klasavchik.modelHorseProject.entity.ShowEntity.Show;
+import com.klasavchik.modelHorseProject.dto.show.base.*;
 import com.klasavchik.modelHorseProject.security.CustomUserDetails;
 import com.klasavchik.modelHorseProject.service.ContestStructureService;
 import jakarta.validation.Valid;

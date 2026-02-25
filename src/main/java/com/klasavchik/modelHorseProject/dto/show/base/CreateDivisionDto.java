@@ -1,4 +1,4 @@
-package com.klasavchik.modelHorseProject.dto.show;// Входящие (create)
+package com.klasavchik.modelHorseProject.dto.show.base;// Входящие (create)
 
 import lombok.Data;
 import lombok.Getter;

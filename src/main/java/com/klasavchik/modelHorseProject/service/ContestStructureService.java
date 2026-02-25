@@ -1,6 +1,9 @@
 package com.klasavchik.modelHorseProject.service;
 
-import com.klasavchik.modelHorseProject.dto.show.*;
+import com.klasavchik.modelHorseProject.dto.show.base.*;
+import com.klasavchik.modelHorseProject.dto.show.organizersJudges.JudgeShortDto;
+import com.klasavchik.modelHorseProject.dto.show.organizersJudges.OrganizerDto;
+import com.klasavchik.modelHorseProject.dto.show.organizersJudges.OrganizerShortDto;
 import com.klasavchik.modelHorseProject.dto.show.price.TicketPriceDto;
 import com.klasavchik.modelHorseProject.entity.ShowEntity.*;
 import com.klasavchik.modelHorseProject.entity.user.User;
@@ -30,6 +33,7 @@ public class ContestStructureService {
     private final EntryRepository entryRepository;
     private final ClassRepository classRepository;  // ClassEntityRepository
     private final ShowService showService;
+    private final RegistrationRepository registrationRepository;
 
     private Long getCurrentUserId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -261,6 +265,13 @@ public class ContestStructureService {
         Show show = showRepository.findById(showId)
                 .orElseThrow(() -> new EntityNotFoundException("Шоу не найдено"));
 
+        Long currentUserId = null;
+        try {
+            currentUserId = getCurrentUserId();
+        } catch (IllegalStateException e) {
+            // Пользователь не аутентифицирован, это нормально
+        }
+
         // Организаторы
         List<OrganizerShortDto> organizers = show.getOrganizer().stream()
                 .map(sc -> {
@@ -297,6 +308,27 @@ public class ContestStructureService {
                         .build())
                 .collect(Collectors.toList());
 
+        // Информация о заявке текущего пользователя (если он аутентифицирован)
+        StatusRegOfShow registrationStatus = null;
+        Long registrationId = null;
+        String applicationNumber = null;
+        Integer totalSum = null;
+
+        if (currentUserId != null) {
+            var registration = registrationRepository.findByShowIdAndUserId(showId, currentUserId);
+            if (registration.isPresent()) {
+                Registration reg = registration.get();
+                registrationStatus = reg.getStatus();
+                registrationId = reg.getId();
+                applicationNumber = reg.getApplicationNumber();
+
+                Integer ticketPrice = reg.getTicketPrice() != null ? reg.getTicketPrice().getPrice() : null;
+                int safeTicketPrice = ticketPrice != null ? ticketPrice : 0;
+                int safeAdditionalPrice = show.getAdditionalPrice() != null ? show.getAdditionalPrice() : 0;
+                int safeAdditionalModels = reg.getAdditionalModels() != null ? reg.getAdditionalModels() : 0;
+                totalSum = safeTicketPrice + (safeAdditionalPrice * safeAdditionalModels);
+            }
+        }
 
         return ShowFullInfoResponse.builder()
                 .id(show.getId())
@@ -313,11 +345,16 @@ public class ContestStructureService {
                 .createdAt(show.getCreatedAt())
                 .updatedAt(show.getUpdatedAt())
                 .isCompleted(show.isCompleted())
+                .registrationStatus(registrationStatus)
+                .registrationId(registrationId)
+                .applicationNumber(applicationNumber)
+                .totalSum(totalSum)
                 .organizers(organizers)
                 .ticketPrices(tickets)
                 .judges(judges)
-                .isCurrentUserJudge(showService.isOrganizer(show,getCurrentUserId()))
-                .isCurrentUserOrganizer(showService.isOrganizer(show,getCurrentUserId()))
+                .isCurrentUserJudge(currentUserId != null && showService.isJudge(show, currentUserId))
+                .isCurrentUserOrganizer(currentUserId != null && showService.isOrganizer(show, currentUserId))
                 .build();
     }
 }
+

@@ -1,4 +1,4 @@
-package com.klasavchik.modelHorseProject.dto.show;
+package com.klasavchik.modelHorseProject.dto.show.base;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

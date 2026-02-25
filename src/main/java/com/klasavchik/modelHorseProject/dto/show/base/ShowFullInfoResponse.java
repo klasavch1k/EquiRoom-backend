@@ -1,6 +1,10 @@
-package com.klasavchik.modelHorseProject.dto.show;
+package com.klasavchik.modelHorseProject.dto.show.base;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.klasavchik.modelHorseProject.dto.show.organizersJudges.JudgeShortDto;
+import com.klasavchik.modelHorseProject.dto.show.organizersJudges.OrganizerShortDto;
 import com.klasavchik.modelHorseProject.dto.show.price.TicketPriceDto;
+import com.klasavchik.modelHorseProject.entity.ShowEntity.StatusRegOfShow;
 import lombok.Builder;
 import lombok.Data;
 
@@ -27,6 +31,13 @@ public class ShowFullInfoResponse {
     private boolean isCompleted;
     private boolean isCurrentUserOrganizer;
     private boolean isCurrentUserJudge;
+
+    private StatusRegOfShow registrationStatus;  // статус заявки текущего пользователя (может быть null)
+    private Long registrationId;                 // id заявки (может быть null)
+    private String applicationNumber;            // номер заявки (может быть null)
+
+    @JsonProperty("total_sum")
+    private Integer totalSum;                    // цена билета + цена доп. модели * кол-во доп. моделей
 
     private List<OrganizerShortDto> organizers;
     private List<TicketPriceDto> ticketPrices;

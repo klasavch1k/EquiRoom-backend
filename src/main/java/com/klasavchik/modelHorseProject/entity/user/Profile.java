@@ -14,7 +14,6 @@ import java.time.LocalDate;
 
 @Entity
 
-//тут держим всю остальную инфу о юзере, для большей сепарации данных
 public class Profile {
 
         @Id
@@ -27,5 +26,6 @@ public class Profile {
     private Gender gender;
         @Column(unique = true)
     private String nickname;
-    private String bio; // кринж подпись в аккаунте
+    private String bio;
+    private String vkNickname;
 }

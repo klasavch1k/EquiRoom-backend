@@ -18,4 +18,5 @@ public class DetailUserResponse {
     private String phoneNumber;
     private String gender;
     private String nickname;
+    private String vkNickname;
 }

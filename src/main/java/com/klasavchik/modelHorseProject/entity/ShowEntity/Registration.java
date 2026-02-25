@@ -15,7 +15,9 @@ import java.util.Set;
 @ToString(exclude = {"entries"})
 @EqualsAndHashCode(exclude = {"entries"})
 @Entity
-@Table(name = "registrations")
+@Table(name = "registrations", indexes = {
+        @Index(name = "idx_registration_application_number", columnList = "application_number")
+})
 public class Registration {
 
     @Id
@@ -39,7 +41,8 @@ public class Registration {
     private boolean isJudge;
 
     private Integer additionalModels;
-    private String status;      // pending, paid, approved, cancelled...
+    @Enumerated(EnumType.STRING)
+    private StatusRegOfShow status;      // pending, paid, approved, cancelled...
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -47,6 +50,9 @@ public class Registration {
     @Builder.Default
     @OneToMany(mappedBy = "registration", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<Entry> entries = new HashSet<>();
+
+    @Column(name = "application_number", unique = true)
+    private String applicationNumber;
 
     @PrePersist
     public void prePersist() {

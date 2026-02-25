@@ -75,6 +75,7 @@ public class UserMapper {
                 .gender(gender)
                 .bio(user.getProfile().getBio())
                 .nickname(user.getProfile().getNickname())
+                .vkNickname(user.getProfile().getVkNickname())
                 .build();
     }
 }

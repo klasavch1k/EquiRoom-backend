@@ -1,4 +1,4 @@
-package com.klasavchik.modelHorseProject.dto.show;
+package com.klasavchik.modelHorseProject.dto.show.base;
 
 import com.klasavchik.modelHorseProject.dto.show.price.TicketPriceDto;
 import jakarta.validation.constraints.NotBlank;

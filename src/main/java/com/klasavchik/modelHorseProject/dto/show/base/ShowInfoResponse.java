@@ -1,18 +1,20 @@
-package com.klasavchik.modelHorseProject.dto.show;
+package com.klasavchik.modelHorseProject.dto.show.base;
 
-import lombok.AllArgsConstructor;
+import com.klasavchik.modelHorseProject.dto.show.organizersJudges.OrganizerDto;
+import com.klasavchik.modelHorseProject.dto.show.price.TicketPriceDto;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.List;
 
-// ShowShortResponse.java (минимальный ответ)
 @Data
+@Getter
+@Setter
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class ShowShortResponse {
+public class ShowInfoResponse {
     private Long id;
     private String name;
     private String description;
@@ -24,6 +26,7 @@ public class ShowShortResponse {
     private boolean isPaid;
     private Integer maxAdditionalPhotos;
     private String bannerUrl;
-    private String createdByNickname;
     private boolean isCompleted;
+    private List<OrganizerDto> organizers;
+    private List<TicketPriceDto> ticketPrices;
 }

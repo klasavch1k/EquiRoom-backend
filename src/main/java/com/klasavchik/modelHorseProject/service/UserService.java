@@ -143,6 +143,7 @@ public class UserService {
         profile.setBio(dto.getBio());
         profile.setNickname(dto.getNickname());
         profile.setDateOfBirth(dto.getDateOfBirth());
+        profile.setVkNickname(dto.getVkNickname());
 
         if (dto.getGender() != null && dto.getGender().equals("MALE")) {
             profile.setGender(Gender.MALE);
@@ -233,6 +234,22 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         DetailUserResponse detailUserResponse = userMapper.toDetailUserResponse(user);
         return detailUserResponse;
+    }
+
+    @Transactional
+    public void updateVkNickname(Long userId, String vkNickname) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Profile profile = user.getProfile();
+        if (profile == null) {
+            profile = new Profile();
+            user.setProfile(profile);
+        }
+
+        profile.setVkNickname(vkNickname);
+        user.setUpdatedAt(LocalDateTime.now());
+        userRepository.save(user);
     }
 
     // Новые методы для подписки/отписки

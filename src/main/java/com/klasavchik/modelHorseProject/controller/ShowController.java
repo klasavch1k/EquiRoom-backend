@@ -1,9 +1,9 @@
 package com.klasavchik.modelHorseProject.controller;
 
-import com.klasavchik.modelHorseProject.dto.show.CreateShowRequest;
-import com.klasavchik.modelHorseProject.dto.show.ShowCardResponse;
-import com.klasavchik.modelHorseProject.dto.show.ShowShortResponse;
-import com.klasavchik.modelHorseProject.dto.show.UpdateShowRequest;
+import com.klasavchik.modelHorseProject.dto.show.base.CreateShowRequest;
+import com.klasavchik.modelHorseProject.dto.show.base.ShowCardResponse;
+import com.klasavchik.modelHorseProject.dto.show.base.ShowShortResponse;
+import com.klasavchik.modelHorseProject.dto.show.base.UpdateShowRequest;
 import com.klasavchik.modelHorseProject.dto.show.price.AdditionalPriceResponse;
 import com.klasavchik.modelHorseProject.entity.ShowEntity.Show;
 import com.klasavchik.modelHorseProject.repository.show.ShowRepository;
@@ -19,12 +19,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -101,12 +99,19 @@ public class ShowController {
     @GetMapping("/all")
     public ResponseEntity<Page<ShowCardResponse>> getAllShows(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "24") int size) {
+            @RequestParam(defaultValue = "24") int size,
+            Authentication authentication) {
 
         int safeSize = Math.max(1, Math.min(size, 100));
         Pageable pageable = PageRequest.of(page, safeSize);
 
-        Page<ShowCardResponse> result = showService.getAllPublicShowsPaged(pageable);
+        Long userId = null;
+        if (authentication != null && authentication.getPrincipal() instanceof CustomUserDetails) {
+            CustomUserDetails details = (CustomUserDetails) authentication.getPrincipal();
+            userId = details.getUserId();
+        }
+
+        Page<ShowCardResponse> result = showService.getAllPublicShowsPaged(pageable, userId);
 
         return ResponseEntity.ok(result);
     }

@@ -15,4 +15,5 @@ public class UpdatePersonInformRequest {
     private LocalDate dateOfBirth;
     private String avatar;
     private String nickname;
+    private String vkNickname;
 }
