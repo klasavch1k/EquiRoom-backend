@@ -71,14 +71,22 @@ public class ShowService {
         }
     }
 
+    private boolean isInProgress(Show show) {
+        return show.isStarted() && !show.isCompleted();
+    }
+
+    private void checkReadOnlyPeriod(Show show) {
+        if (show.isCompleted() || (show.getEndDate() != null && !java.time.LocalDate.now().isBefore(show.getEndDate()))) {
+            throw new com.klasavchik.modelHorseProject.exception.ShowReadOnlyException();
+        }
+    }
+
     public void checkCanEditParams(Show show, Long userId) {
         checkCanView(show, userId);
         if (!isOrganizer(show, userId)) {
-            throw new AccessDeniedException("Только организаторы могут редактировать параметры шоу");
+            throw new AccessDeniedException("Редактировать параметры шоу могут только организаторы (создатель или со-организатор)");
         }
-        if (show.isStarted() || show.isCompleted()) {
-            throw new IllegalStateException("Нельзя редактировать параметры после старта или завершения шоу");
-        }
+        checkReadOnlyPeriod(show);
     }
 
     public void checkCanEditJudging(Show show, Long userId) {
@@ -144,10 +152,36 @@ public class ShowService {
 
         checkCanEditParams(show, userId);
 
+        boolean inProgress = isInProgress(show);
+
+        if (inProgress) {
+            if (dto.getName() != null) {
+                throw new IllegalStateException("Нельзя менять название после старта шоу");
+            }
+            if (dto.getStartDate() != null) {
+                throw new IllegalStateException("Нельзя менять дату старта после начала шоу");
+            }
+            if (dto.getLotteryEnabled() != null) {
+                throw new IllegalStateException("Нельзя менять лотерею после старта шоу");
+            }
+            if (dto.getAdditionalPrice() != null) {
+                throw new IllegalStateException("Нельзя менять стоимость доп. моделей после старта шоу");
+            }
+            if (dto.getIsPaid() != null) {
+                throw new IllegalStateException("Нельзя менять тип оплаты после старта шоу");
+            }
+        }
+
         if (dto.getName() != null) show.setName(dto.getName());
         if (dto.getDescription() != null) show.setDescription(dto.getDescription());
         if (dto.getStartDate() != null) show.setStartDate(dto.getStartDate());
-        if (dto.getEndDate() != null) show.setEndDate(dto.getEndDate());
+
+        if (dto.getEndDate() != null) {
+            if (inProgress && show.getEndDate() != null && dto.getEndDate().isBefore(show.getEndDate())) {
+                throw new IllegalStateException("Нельзя уменьшать дату завершения после старта шоу");
+            }
+            show.setEndDate(dto.getEndDate());
+        }
 
         if (show.getStartDate() == null || show.getEndDate() == null) {
             throw new IllegalArgumentException("Даты начала и окончания обязательны");
@@ -156,7 +190,14 @@ public class ShowService {
         if (dto.getLotteryEnabled() != null) show.setLotteryEnabled(dto.getLotteryEnabled());
         if (dto.getAdditionalPrice() != null) show.setAdditionalPrice(dto.getAdditionalPrice());
         if (dto.getIsPaid() != null) show.setPaid(dto.getIsPaid());
-        if (dto.getMaxAdditionalPhotos() != null) show.setMaxAdditionalPhotos(dto.getMaxAdditionalPhotos());
+
+        if (dto.getMaxAdditionalPhotos() != null) {
+            int current = show.getMaxAdditionalPhotos() != null ? show.getMaxAdditionalPhotos() : 0;
+            if (inProgress && dto.getMaxAdditionalPhotos() < current) {
+                throw new IllegalStateException("Нельзя уменьшать лимит доп. фото после старта шоу");
+            }
+            show.setMaxAdditionalPhotos(dto.getMaxAdditionalPhotos());
+        }
 
         showRepository.save(show);
         return buildShortResponse(show);
@@ -169,6 +210,10 @@ public class ShowService {
         Show show = showRepository.findById(showId)
                 .orElseThrow(() -> new EntityNotFoundException("Шоу не найдено"));
         checkCanEditParams(show, userId);
+
+        if (show.isStarted()) {
+            throw new IllegalStateException("Нельзя менять баннер после старта шоу");
+        }
 
         if (Boolean.TRUE.equals(deleteFlag)) {
             show.setBannerUrl(null);
@@ -188,6 +233,10 @@ public class ShowService {
         Show show = showRepository.findById(showId)
                 .orElseThrow(() -> new EntityNotFoundException("Шоу не найдено"));
         checkCanEditParams(show, userId);
+
+        if (show.isStarted()) {
+            throw new IllegalStateException("Нельзя менять регламент после старта шоу");
+        }
 
         if (Boolean.TRUE.equals(deleteFlag)) {
             show.setRulesFileUrl(null);
@@ -308,12 +357,15 @@ public class ShowService {
     }
     @Transactional
     public void updateAdditionalPrice(Long showId, Integer additionalPrice, Long userId) {
-    Show show = showRepository.findById(showId)
-    .orElseThrow(() -> new EntityNotFoundException("Шоу не найдено"));
-    isOrganizer(show, userId);
-    show.setAdditionalPrice(additionalPrice); // null = бесплатно
-    showRepository.save(show);
-}
+        Show show = showRepository.findById(showId)
+                .orElseThrow(() -> new EntityNotFoundException("Шоу не найдено"));
+        if (!isOrganizer(show, userId)) {
+            throw new AccessDeniedException("Редактировать цену доп. моделей могут только организаторы");
+        }
+        checkReadOnlyPeriod(show);
+        show.setAdditionalPrice(additionalPrice); // null = бесплатно
+        showRepository.save(show);
+    }
     @Transactional(readOnly = true)
     public Page<ShowCardResponse> getAllPublicShowsPaged(Pageable pageable, Long userId) {
         // Защита от кривых параметров

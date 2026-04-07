@@ -121,6 +121,12 @@ public class ContestStructureService {
         if (!isAllowed) {
             throw new AccessDeniedException("Нет прав редактировать структуру шоу");
         }
+        if (show.isCompleted() || (show.getEndDate() != null && !java.time.LocalDate.now().isBefore(show.getEndDate()))) {
+            throw new com.klasavchik.modelHorseProject.exception.ShowReadOnlyException();
+        }
+        if (show.isStarted()) {
+            throw new IllegalStateException("Нельзя менять структуру после старта шоу");
+        }
     }
     @Transactional(readOnly = true)
     public ShowInfoResponse getShowInfo(Long showId) {

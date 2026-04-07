@@ -87,9 +87,16 @@ public class RegistrationService {
             }
 
             registration.setTicketPrice(ticketPrice);
-        } else {
-            // Спонсор — тариф пока не выбираем, оставляем null
-            registration.setTicketPrice(null);
+        } else if (request.getTicketPriceId() != null) {
+            // Спонсор может выбрать тариф — сохраняем, если передан
+            TicketPrice ticketPrice = ticketPriceRepository.findById(request.getTicketPriceId())
+                    .orElseThrow(() -> new EntityNotFoundException("Тариф не найден"));
+
+            if (!ticketPrice.getShow().getId().equals(showId)) {
+                throw new IllegalArgumentException("Тариф не принадлежит этому шоу");
+            }
+
+            registration.setTicketPrice(ticketPrice);
         }
 
         registration = registrationRepository.save(registration);
@@ -225,6 +232,8 @@ public class RegistrationService {
                 .orElseThrow(() -> new EntityNotFoundException("Регистрация не найдена"));
 
         Show show = registration.getShow();
+        checkReadOnlyPeriod(show);
+
         boolean isOwner = registration.getUser().getId().equals(currentUserId);
         boolean isOrganizer = show.getOrganizer().stream()
                 .anyMatch(sc -> sc.getUser().getId().equals(currentUserId));
@@ -274,9 +283,15 @@ public class RegistrationService {
                 }
                 registration.setTicketPrice(ticketPrice);
             }
-        } else {
-            // Если стал спонсором - тариф сбрасываем
-            registration.setTicketPrice(null);
+        } else if (request.getTicketPriceId() != null) {
+            // Спонсор может иметь тариф — обновляем, если передан
+            TicketPrice ticketPrice = ticketPriceRepository.findById(request.getTicketPriceId())
+                    .orElseThrow(() -> new EntityNotFoundException("Тариф не найден"));
+
+            if (!ticketPrice.getShow().getId().equals(show.getId())) {
+                throw new IllegalArgumentException("Тариф не принадлежит этому шоу");
+            }
+            registration.setTicketPrice(ticketPrice);
         }
 
         // Сохраняем
@@ -291,6 +306,7 @@ public class RegistrationService {
                 .orElseThrow(() -> new EntityNotFoundException("Регистрация не найдена"));
 
         Show show = registration.getShow();
+        checkReadOnlyPeriod(show);
 
         // Статус может менять ТОЛЬКО организатор
         boolean isOrganizer = show.getOrganizer().stream()
@@ -301,10 +317,19 @@ public class RegistrationService {
         }
 
         if (request.getStatus() != null) {
+            if (request.getStatus() == StatusRegOfShow.APPROVED && registration.getTicketPrice() == null) {
+                throw new IllegalArgumentException("Нельзя одобрить заявку без выбранного тарифа");
+            }
             registration.setStatus(request.getStatus());
         }
 
         registration = registrationRepository.save(registration);
         return mapToResponse(registration, show);
+    }
+
+    private void checkReadOnlyPeriod(Show show) {
+        if (show.isCompleted() || (show.getEndDate() != null && !java.time.LocalDate.now().isBefore(show.getEndDate()))) {
+            throw new com.klasavchik.modelHorseProject.exception.ShowReadOnlyException();
+        }
     }
 }

@@ -63,7 +63,12 @@ public class TicketPriceService {
         if (!isCreator) {
             throw new AccessDeniedException("Только создатель может менять цены");
         }
-        // Можно добавить проверку !show.isCompleted() позже
+        if (show.isCompleted() || (show.getEndDate() != null && !java.time.LocalDate.now().isBefore(show.getEndDate()))) {
+            throw new com.klasavchik.modelHorseProject.exception.ShowReadOnlyException();
+        }
+        if (show.isStarted()) {
+            throw new IllegalStateException("Нельзя менять билеты после старта шоу");
+        }
     }
 
 }

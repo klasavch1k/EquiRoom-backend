@@ -9,9 +9,7 @@ import com.klasavchik.modelHorseProject.repository.UserRepository;
 import com.klasavchik.modelHorseProject.repository.show.JudgeRepository;
 import com.klasavchik.modelHorseProject.repository.show.ShowCreatorRepository;
 import com.klasavchik.modelHorseProject.repository.show.ShowRepository;
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -25,15 +23,13 @@ public class OrganizersJudgesService {
     private final ShowCreatorRepository showCreatorRepository;
     private final JudgeRepository judgeRepository;
     private final UserRepository userRepository;
-    @PersistenceContext  // ← добавь эту аннотацию
-    private EntityManager entityManager;
 
     @Transactional
     public void addOrganizer(Long showId, Long userId, Long currentUserId) {
         Show show = showRepository.findById(showId)
                 .orElseThrow(() -> new EntityNotFoundException("Шоу не найдено"));
 
-        checkCanEdit(show, currentUserId);
+        checkCanEditOrganizers(show, currentUserId);
 
         if (userId.equals(currentUserId)) {
             throw new IllegalArgumentException("Нельзя добавить себя как со-организатора");
@@ -60,16 +56,13 @@ public class OrganizersJudgesService {
         Show show = showRepository.findById(showId)
                 .orElseThrow(() -> new EntityNotFoundException("Шоу не найдено"));
 
-        checkCanEdit(show, currentUserId);
+        checkCanEditOrganizers(show, currentUserId);
 
         ShowCreator sc = showCreatorRepository.findByShowIdAndUserId(showId, userId)
                 .orElseThrow(() -> new EntityNotFoundException("Организатор не найден"));
 
-        showCreatorRepository.delete(sc);
-        showCreatorRepository.flush(); // принудительно коммитим DELETE
-        entityManager.detach(show); // отсоединяем старый объект
-        // или полностью очищаем кэш сущности
-        entityManager.getEntityManagerFactory().getCache().evict(Show.class, showId);
+        // Удаляем через коллекцию, чтобы orphanRemoval корректно сработал
+        show.getOrganizer().remove(sc);
     }
 
     @Transactional
@@ -77,7 +70,7 @@ public class OrganizersJudgesService {
         Show show = showRepository.findById(showId)
                 .orElseThrow(() -> new EntityNotFoundException("Шоу не найдено"));
 
-        checkCanEdit(show, currentUserId);
+        checkCanEditJudges(show, currentUserId);
 
         User user = null;
         if (dto.getUserId() != null) {
@@ -99,7 +92,7 @@ public class OrganizersJudgesService {
         Show show = showRepository.findById(showId)
                 .orElseThrow(() -> new EntityNotFoundException("Шоу не найдено"));
 
-        checkCanEdit(show, currentUserId);
+        checkCanEditJudges(show, currentUserId);
 
         Judge judge = judgeRepository.findById(judgeId)
                 .orElseThrow(() -> new EntityNotFoundException("Судья не найден"));
@@ -112,16 +105,29 @@ public class OrganizersJudgesService {
     }
 
     // Унифицированная проверка прав — только создатель + не завершённое шоу
-    private void checkCanEdit(Show show, Long userId) {
+    private void checkCanEditOrganizers(Show show, Long userId) {
         boolean isCreator = show.getOrganizer().stream()
                 .anyMatch(sc -> sc.getUser().getId().equals(userId) && "creator".equals(sc.getRole()));
 
         if (!isCreator) {
-            throw new AccessDeniedException("Только создатель шоу может добавлять/удалять организаторов и судей");
+            throw new AccessDeniedException("Только создатель шоу может добавлять/удалять организаторов");
         }
 
-        if (show.isCompleted()) {
-            throw new IllegalStateException("Нельзя изменять организаторов и судей после завершения шоу");
+        if (show.isCompleted() || (show.getEndDate() != null && !java.time.LocalDate.now().isBefore(show.getEndDate()))) {
+            throw new com.klasavchik.modelHorseProject.exception.ShowReadOnlyException();
+        }
+    }
+
+    private void checkCanEditJudges(Show show, Long userId) {
+        boolean isCreator = show.getOrganizer().stream()
+                .anyMatch(sc -> sc.getUser().getId().equals(userId) && "creator".equals(sc.getRole()));
+
+        if (!isCreator) {
+            throw new AccessDeniedException("Только создатель шоу может добавлять/удалять судей");
+        }
+
+        if (show.isCompleted() || (show.getEndDate() != null && !java.time.LocalDate.now().isBefore(show.getEndDate()))) {
+            throw new com.klasavchik.modelHorseProject.exception.ShowReadOnlyException();
         }
     }
 }

@@ -5,7 +5,10 @@ import com.klasavchik.modelHorseProject.entity.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Data
+import java.util.Objects;
+
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -26,4 +29,17 @@ public class ShowCreator {
     private User user;
 
     private String role; // "creator", "co-organizer" и т.д.
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ShowCreator that = (ShowCreator) o;
+        return id != null && Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }
