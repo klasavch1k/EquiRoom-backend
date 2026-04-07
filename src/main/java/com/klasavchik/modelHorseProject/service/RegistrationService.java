@@ -8,10 +8,12 @@ import com.klasavchik.modelHorseProject.dto.show.registration.UpdateRegistration
 import com.klasavchik.modelHorseProject.entity.ShowEntity.Registration;
 import com.klasavchik.modelHorseProject.entity.ShowEntity.Show;
 import com.klasavchik.modelHorseProject.entity.ShowEntity.StatusRegOfShow;
+import com.klasavchik.modelHorseProject.entity.ShowEntity.StatusEntry;
 import com.klasavchik.modelHorseProject.entity.ShowEntity.TicketPrice;
 import com.klasavchik.modelHorseProject.entity.user.Profile;
 import com.klasavchik.modelHorseProject.entity.user.User;
 import com.klasavchik.modelHorseProject.repository.UserRepository;
+import com.klasavchik.modelHorseProject.repository.show.EntryRepository;
 import com.klasavchik.modelHorseProject.repository.show.RegistrationRepository;
 import com.klasavchik.modelHorseProject.repository.show.ShowRepository;
 import com.klasavchik.modelHorseProject.repository.show.TicketPriceRepository;
@@ -32,6 +34,7 @@ public class RegistrationService {
     private final ShowRepository showRepository;
     private final UserRepository userRepository;
     private final TicketPriceRepository ticketPriceRepository;
+    private final EntryRepository entryRepository;
 
     @PersistenceContext
     private EntityManager em;
@@ -321,6 +324,11 @@ public class RegistrationService {
                 throw new IllegalArgumentException("Нельзя одобрить заявку без выбранного тарифа");
             }
             registration.setStatus(request.getStatus());
+
+            // Каскадная деактивация entries при отклонении/отмене регистрации
+            if (request.getStatus() == StatusRegOfShow.REJECTED || request.getStatus() == StatusRegOfShow.CANCELLED) {
+                entryRepository.deactivateByRegistrationId(registrationId, StatusEntry.REJECTED);
+            }
         }
 
         registration = registrationRepository.save(registration);

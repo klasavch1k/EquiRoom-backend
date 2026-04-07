@@ -181,8 +181,8 @@ public class ContestStructureService {
                                 List<ClassStructureDto> classDtos = classes.stream()
                                         .map(clazz -> {
                                             // Счётчики для класса (запросы к Entry)
-                                            int total = entryRepository.countByClassEntityId(clazz.getId());
-                                            int admitted = entryRepository.countByClassEntityIdAndAdmittedTrue(clazz.getId());
+                                            int total = entryRepository.countByClassEntityIdAndActiveTrue(clazz.getId());
+                                            int admitted = entryRepository.countByClassEntityIdAndActiveTrueAndStatus(clazz.getId(), com.klasavchik.modelHorseProject.entity.ShowEntity.StatusEntry.APPROVED);
                                             int judged = entryRepository.countByClassEntityIdAndJudgedTrue(clazz.getId());
 
                                             return ClassStructureDto.builder()
