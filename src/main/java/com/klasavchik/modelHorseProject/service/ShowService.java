@@ -442,5 +442,21 @@ public class ShowService {
                     .build();
         });
     }
+    @Transactional
+    public ShowShortResponse completeShow(Long showId, Long userId) {
+        Show show = showRepository.findById(showId)
+                .orElseThrow(() -> new EntityNotFoundException("Шоу не найдено"));
+
+        if (!isOrganizer(show, userId)) {
+            throw new AccessDeniedException("Завершить шоу могут только организаторы");
+        }
+
+        if (!show.isCompleted()) {
+            show.setCompleted(true);
+            showRepository.save(show);
+        }
+
+        return buildShortResponse(show);
+    }
 
 }

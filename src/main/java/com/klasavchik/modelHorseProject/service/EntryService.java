@@ -73,6 +73,12 @@ public class EntryService {
             throw new AccessDeniedException("Модель не принадлежит вам");
         }
 
+        // Правило: одна модель — один раз в классе
+        if (entryRepository.existsByRegistrationIdAndClassEntityIdAndModelIdAndActiveTrue(
+                registration.getId(), classId, model.getId())) {
+            throw new IllegalStateException("Эта модель уже добавлена в данный класс");
+        }
+
         // Правило 4: не более 2 моделей от одного участника в один класс
         int inClass = entryRepository.countByRegistrationIdAndClassEntityIdAndActiveTrue(registration.getId(), classId);
         if (inClass >= 2) {
@@ -141,7 +147,7 @@ public class EntryService {
                 .horseName(model.getName())
                 .status(entry.getStatus().name())
                 .mainPhotoUrl(entry.getMainPhotoUrl())
-                .additionalPhotos(entry.getAdditionalPhotos())
+                .additionalPhotos(new ArrayList<>(entry.getAdditionalPhotos()))
                 .createdAt(entry.getCreatedAt())
                 .build();
     }
@@ -170,7 +176,7 @@ public class EntryService {
                     .horseName(m.getName())
                     .horseAvatar(m.getAvatar())
                     .mainPhotoUrl(e.getMainPhotoUrl())
-                    .additionalPhotos(e.getAdditionalPhotos())
+                    .additionalPhotos(new ArrayList<>(e.getAdditionalPhotos()))
                     .status(e.getStatus().name())
                     .createdAt(e.getCreatedAt())
                     .build();
@@ -189,7 +195,7 @@ public class EntryService {
         boolean isOrgOrJudge = show.getOrganizer().stream()
                 .anyMatch(sc -> sc.getUser().getId().equals(userId))
                 || show.getJudges().stream()
-                .anyMatch(j -> j.getUser().getId().equals(userId));
+                .anyMatch(j -> j.getUser() != null && j.getUser().getId().equals(userId));
         if (!isOrgOrJudge) {
             throw new AccessDeniedException("Только организаторы и судьи могут просматривать entries класса");
         }
@@ -206,6 +212,7 @@ public class EntryService {
 
             return ClassEntryListItem.builder()
                     .entryId(e.getId())
+                    .registrationId(e.getRegistration().getId())
                     .userId(u.getId())
                     .userDisplayName(displayName.isEmpty() ? u.getEmail() : displayName)
                     .userNickname(p != null ? p.getNickname() : null)
@@ -227,13 +234,14 @@ public class EntryService {
         Entry entry = entryRepository.findById(entryId)
                 .orElseThrow(() -> new EntityNotFoundException("Запись не найдена"));
 
-        Show show = entry.getRegistration().getShow();
-        User owner = entry.getRegistration().getUser();
+        Registration registration = entry.getRegistration();
+        Show show = showRepository.findById(registration.getShow().getId())
+                .orElseThrow(() -> new EntityNotFoundException("Шоу не найдено"));
+        User owner = registration.getUser();
 
-        // Доступ: владелец, организатор или судья
         boolean isOwner = owner.getId().equals(userId);
         boolean isOrg = show.getOrganizer().stream().anyMatch(sc -> sc.getUser().getId().equals(userId));
-        boolean isJudge = show.getJudges().stream().anyMatch(j -> j.getUser().getId().equals(userId));
+        boolean isJudge = show.getJudges().stream().anyMatch(j -> j.getUser() != null && j.getUser().getId().equals(userId));
 
         if (!isOwner && !isOrg && !isJudge) {
             throw new AccessDeniedException("Нет доступа к этой записи");
@@ -255,11 +263,11 @@ public class EntryService {
                 .horseName(m.getName())
                 .horseAvatar(m.getAvatar())
                 .mainPhotoUrl(entry.getMainPhotoUrl())
-                .additionalPhotos(entry.getAdditionalPhotos())
+                .additionalPhotos(new ArrayList<>(entry.getAdditionalPhotos()))
                 .status(entry.getStatus().name())
                 .createdAt(entry.getCreatedAt())
-                .registrationId(entry.getRegistration().getId())
-                .registrationStatus(entry.getRegistration().getStatus().name())
+                .registrationId(registration.getId())
+                .registrationStatus(registration.getStatus().name())
                 .build();
     }
 
@@ -270,29 +278,21 @@ public class EntryService {
         Entry entry = entryRepository.findById(entryId)
                 .orElseThrow(() -> new EntityNotFoundException("Запись не найдена"));
 
-        Show show = entry.getRegistration().getShow();
+        Show show = showRepository.findById(entry.getRegistration().getShow().getId())
+                .orElseThrow(() -> new EntityNotFoundException("Шоу не найдено"));
         if (show.isCompleted()) {
             throw new ShowReadOnlyException();
         }
 
         boolean isOrg = show.getOrganizer().stream().anyMatch(sc -> sc.getUser().getId().equals(userId));
-        boolean isJudge = show.getJudges().stream().anyMatch(j -> j.getUser().getId().equals(userId));
+        boolean isJudge = show.getJudges().stream().anyMatch(j -> j.getUser() != null && j.getUser().getId().equals(userId));
         if (!isOrg && !isJudge) {
             throw new AccessDeniedException("Только организаторы и судьи могут менять статус entries");
         }
 
-        StatusEntry oldStatus = entry.getStatus();
         StatusEntry newStatus = request.getStatus();
-
         entry.setStatus(newStatus);
-
-        // Синхронизируем admitted
-        if (newStatus == StatusEntry.APPROVED) {
-            entry.setAdmitted(true);
-        } else {
-            entry.setAdmitted(false);
-        }
-
+        entry.setAdmitted(newStatus == StatusEntry.APPROVED);
         entryRepository.save(entry);
 
         return getEntryDetail(entryId, userId);
@@ -305,7 +305,8 @@ public class EntryService {
         Entry entry = entryRepository.findById(entryId)
                 .orElseThrow(() -> new EntityNotFoundException("Запись не найдена"));
 
-        Show show = entry.getRegistration().getShow();
+        Show show = showRepository.findById(entry.getRegistration().getShow().getId())
+                .orElseThrow(() -> new EntityNotFoundException("Шоу не найдено"));
         User owner = entry.getRegistration().getUser();
         boolean isOwner = owner.getId().equals(userId);
         boolean isOrg = show.getOrganizer().stream().anyMatch(sc -> sc.getUser().getId().equals(userId));

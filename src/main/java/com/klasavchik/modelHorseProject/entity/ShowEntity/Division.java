@@ -10,7 +10,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString(exclude = {"sections"})
+@ToString(exclude = {"sections", "criteria"})
 @Entity
 @Table(name = "divisions")
 public class Division {
@@ -18,6 +18,9 @@ public class Division {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Version
+    private Long version;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "show_id", nullable = false)
@@ -32,4 +35,9 @@ public class Division {
     @Builder.Default
     @OneToMany(mappedBy = "division", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Section> sections = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "division", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OrderBy("position ASC")
+    private List<DivisionCriterion> criteria = new ArrayList<>();
 }

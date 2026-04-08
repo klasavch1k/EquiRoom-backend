@@ -142,4 +142,14 @@ public class ShowController {
 
         return ResponseEntity.ok(response);
     }
+
+    @PatchMapping("/{id}/complete")
+    @ResponseStatus(HttpStatus.OK)
+    public ShowShortResponse completeShow(@PathVariable Long id) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails details = (CustomUserDetails) auth.getPrincipal();
+        Long userId = details.getUserId();
+
+        return showService.completeShow(id, userId);
+    }
 }

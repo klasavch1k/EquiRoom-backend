@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 @Builder
 public class ClassEntryListItem {
     private Long entryId;
+    private Long registrationId;
     private Long userId;
     private String userDisplayName;
     private String userNickname;

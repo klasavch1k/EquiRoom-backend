@@ -18,6 +18,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import com.klasavchik.modelHorseProject.security.CustomUserDetails;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -31,6 +32,13 @@ public class RegistrationController
     private final ShowRepository showRepository;
     private final ShowService showService;
 
+    private void requireAuth(CustomUserDetails details) {
+        if (details == null) {
+            throw new ResponseStatusException(org.springframework.http.HttpStatus.UNAUTHORIZED,
+                    "Missing or invalid Authorization token");
+        }
+    }
+
     @GetMapping("/{showId}/registrations")
     @Transactional(readOnly = true)
     public ResponseEntity<Page<RegistrationListItemResponse>> getShowRegistrations(
@@ -40,9 +48,7 @@ public class RegistrationController
             @AuthenticationPrincipal CustomUserDetails details) {
 
         // 1. Не залогинен → запрещено
-        if (details == null) {
-            return ResponseEntity.status(403).build();
-        }
+        requireAuth(details);
 
         Long currentUserId = details.getUserId();
 
@@ -73,9 +79,7 @@ public class RegistrationController
             @RequestBody CreateRegistrationRequest request,
             @AuthenticationPrincipal CustomUserDetails details) {
 
-        if (details == null) {
-            return ResponseEntity.status(401).build(); // 401 Unauthorized
-        }
+        requireAuth(details);
 
         Long userId = details.getUserId();
 
@@ -95,9 +99,7 @@ public class RegistrationController
             @AuthenticationPrincipal CustomUserDetails details) {
 
         // 1. Не залогинен → 403
-        if (details == null) {
-            return ResponseEntity.status(403).build();
-        }
+        requireAuth(details);
 
         Long currentUserId = details.getUserId();
 
@@ -128,9 +130,7 @@ public class RegistrationController
     public ResponseEntity<RegistrationListItemResponse> getRegistrationById(
             @PathVariable Long registrationId,
             @AuthenticationPrincipal CustomUserDetails details) {
-        if (details == null) {
-            return ResponseEntity.status(403).build();
-        }
+        requireAuth(details);
         return ResponseEntity.ok(registrationService.getRegistrationById(registrationId, details.getUserId()));
     }
 
@@ -139,9 +139,7 @@ public class RegistrationController
             @PathVariable Long registrationId,
             @RequestBody com.klasavchik.modelHorseProject.dto.show.registration.UpdateRegistrationRequest request,
             @AuthenticationPrincipal CustomUserDetails details) {
-        if (details == null) {
-            return ResponseEntity.status(403).build();
-        }
+        requireAuth(details);
         return ResponseEntity.ok(registrationService.updateRegistration(registrationId, request, details.getUserId()));
     }
 
@@ -150,9 +148,7 @@ public class RegistrationController
             @PathVariable Long registrationId,
             @RequestBody com.klasavchik.modelHorseProject.dto.show.registration.UpdateRegistrationStatusRequest request,
             @AuthenticationPrincipal CustomUserDetails details) {
-        if (details == null) {
-            return ResponseEntity.status(403).build();
-        }
+        requireAuth(details);
         return ResponseEntity.ok(registrationService.updateRegistrationStatus(registrationId, request, details.getUserId()));
     }
 

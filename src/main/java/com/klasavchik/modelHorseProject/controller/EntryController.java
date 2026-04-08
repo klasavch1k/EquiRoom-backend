@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -24,6 +25,12 @@ public class EntryController {
 
     private final EntryService entryService;
 
+    private void requireAuth(CustomUserDetails details) {
+        if (details == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Missing or invalid Authorization token");
+        }
+    }
+
     // 1. POST — подача модели в класс
     @PostMapping("/{showId}/classes/{classId}/entries")
     public ResponseEntity<EntryResponse> createEntry(
@@ -31,7 +38,7 @@ public class EntryController {
             @PathVariable Long classId,
             @Valid @RequestBody CreateEntryRequest request,
             @AuthenticationPrincipal CustomUserDetails details) {
-        if (details == null) return ResponseEntity.status(401).build();
+        requireAuth(details);
         EntryResponse response = entryService.createEntry(showId, classId, request, details.getUserId());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -41,7 +48,7 @@ public class EntryController {
     public ResponseEntity<List<MyEntryResponse>> getMyEntries(
             @PathVariable Long showId,
             @AuthenticationPrincipal CustomUserDetails details) {
-        if (details == null) return ResponseEntity.status(401).build();
+        requireAuth(details);
         return ResponseEntity.ok(entryService.getMyEntries(showId, details.getUserId()));
     }
 
@@ -53,7 +60,7 @@ public class EntryController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @AuthenticationPrincipal CustomUserDetails details) {
-        if (details == null) return ResponseEntity.status(403).build();
+        requireAuth(details);
         Pageable pageable = PageRequest.of(page, Math.min(size, 100), Sort.by(Sort.Direction.DESC, "createdAt"));
         return ResponseEntity.ok(entryService.getEntriesByClass(showId, classId, details.getUserId(), pageable));
     }
@@ -63,7 +70,7 @@ public class EntryController {
     public ResponseEntity<EntryDetailResponse> getEntryDetail(
             @PathVariable Long entryId,
             @AuthenticationPrincipal CustomUserDetails details) {
-        if (details == null) return ResponseEntity.status(403).build();
+        requireAuth(details);
         return ResponseEntity.ok(entryService.getEntryDetail(entryId, details.getUserId()));
     }
 
@@ -73,7 +80,7 @@ public class EntryController {
             @PathVariable Long entryId,
             @RequestBody UpdateEntryStatusRequest request,
             @AuthenticationPrincipal CustomUserDetails details) {
-        if (details == null) return ResponseEntity.status(403).build();
+        requireAuth(details);
         return ResponseEntity.ok(entryService.updateEntryStatus(entryId, request, details.getUserId()));
     }
 
@@ -82,7 +89,7 @@ public class EntryController {
     public ResponseEntity<Void> deleteEntry(
             @PathVariable Long entryId,
             @AuthenticationPrincipal CustomUserDetails details) {
-        if (details == null) return ResponseEntity.status(403).build();
+        requireAuth(details);
         entryService.deleteEntry(entryId, details.getUserId());
         return ResponseEntity.noContent().build();
     }
@@ -92,7 +99,7 @@ public class EntryController {
     public ResponseEntity<EntryCountResponse> getMyEntryCount(
             @PathVariable Long showId,
             @AuthenticationPrincipal CustomUserDetails details) {
-        if (details == null) return ResponseEntity.status(401).build();
+        requireAuth(details);
         return ResponseEntity.ok(entryService.getMyEntryCount(showId, details.getUserId()));
     }
 }

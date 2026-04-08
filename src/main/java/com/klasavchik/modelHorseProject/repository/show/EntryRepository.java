@@ -27,8 +27,14 @@ public interface EntryRepository extends JpaRepository<Entry, Long> {
     // Сколько моделей участника в конкретном классе
     int countByRegistrationIdAndClassEntityIdAndActiveTrue(Long registrationId, Long classId);
 
+    // Проверка дубля модели в классе
+    boolean existsByRegistrationIdAndClassEntityIdAndModelIdAndActiveTrue(Long registrationId, Long classId, Long modelId);
+
     // Entries в классе для организатора/судьи (с пагинацией, только активные)
     Page<Entry> findByClassEntityIdAndActiveTrue(Long classId, Pageable pageable);
+
+    // Все активные entries в классе (без пагинации, для судейства)
+    List<Entry> findAllByClassEntityIdAndActiveTrue(Long classId);
 
     // Все entries по showId через registration → show (только активные)
     @Query("SELECT e FROM Entry e WHERE e.registration.show.id = :showId AND e.registration.user.id = :userId AND e.active = true")

@@ -3,10 +3,15 @@ package com.klasavchik.modelHorseProject.exception;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.OptimisticLockException;
+
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
@@ -39,6 +44,28 @@ public class ApiExceptionHandler {
     public ResponseEntity<ErrorResponseWithCode> handleShowReadOnly(ShowReadOnlyException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(new ErrorResponseWithCode(ShowReadOnlyException.CODE, ex.getMessage()));
+    }
+
+    @ExceptionHandler(JudgingPhaseException.class)
+    public ResponseEntity<ErrorResponseWithCode> handleJudgingPhase(JudgingPhaseException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ErrorResponseWithCode(JudgingPhaseException.CODE, ex.getMessage()));
+    }
+
+    @ExceptionHandler({OptimisticLockException.class, ObjectOptimisticLockingFailureException.class})
+    public ResponseEntity<ErrorResponseWithCode> handleOptimisticLock(Exception ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ErrorResponseWithCode("VERSION_CONFLICT",
+                        "Данные были изменены другим пользователем. Обновите страницу."));
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
+        String message = ex.getBindingResult().getFieldErrors().stream()
+                .map(fe -> fe.getField() + ": " + fe.getDefaultMessage())
+                .collect(Collectors.joining("; "));
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .body(new ErrorResponse(message));
     }
 
     public static class ErrorResponse {
