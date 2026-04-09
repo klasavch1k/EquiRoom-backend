@@ -50,7 +50,7 @@ public class ShowService {
     }
     public boolean isCreator(Show show, Long userId) {
         return show.getOrganizer().stream()
-                .anyMatch(sc -> sc.getUser().getId().equals(userId) & sc.getRole() =="creator");
+                .anyMatch(sc -> sc.getUser().getId().equals(userId) && "creator".equals(sc.getRole()));
     }
 
 

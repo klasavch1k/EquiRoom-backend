@@ -211,17 +211,30 @@ public class JudgingService {
                         "Оценка по критерию «" + criterion.getName() + "» должна быть от 0 до " + criterion.getMaxScore());
             }
 
-            // Upsert
+            // Upsert (с защитой от race condition на unique constraint)
             EntryScore entryScore = entryScoreRepository
                     .findByEntryIdAndJudgeIdAndCriterionId(entry.getId(), currentJudge.getId(), item.getCriterionId())
-                    .orElse(EntryScore.builder()
-                            .entry(entry)
-                            .judge(currentJudge)
-                            .criterion(criterion)
-                            .build());
+                    .orElse(null);
+
+            if (entryScore == null) {
+                entryScore = EntryScore.builder()
+                        .entry(entry)
+                        .judge(currentJudge)
+                        .criterion(criterion)
+                        .build();
+            }
 
             entryScore.setScore(item.getScore());
-            entryScoreRepository.save(entryScore);
+            try {
+                entryScoreRepository.saveAndFlush(entryScore);
+            } catch (org.springframework.dao.DataIntegrityViolationException e) {
+                // Concurrent insert — re-read and update
+                entryScore = entryScoreRepository
+                        .findByEntryIdAndJudgeIdAndCriterionId(entry.getId(), currentJudge.getId(), item.getCriterionId())
+                        .orElseThrow(() -> new IllegalStateException("Не удалось сохранить оценку, попробуйте ещё раз"));
+                entryScore.setScore(item.getScore());
+                entryScoreRepository.saveAndFlush(entryScore);
+            }
         }
 
         // Return updated scores

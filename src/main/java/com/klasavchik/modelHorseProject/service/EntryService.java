@@ -10,6 +10,7 @@ import com.klasavchik.modelHorseProject.repository.ModelRepository;
 import com.klasavchik.modelHorseProject.repository.show.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
@@ -51,8 +52,8 @@ public class EntryService {
             throw new ShowReadOnlyException();
         }
 
-        // Правило 1: регистрация со статусом APPROVED
-        Registration registration = registrationRepository.findByShowIdAndUserId(showId, userId)
+        // Правило 1: регистрация со статусом APPROVED (пессимистическая блокировка для атомарной проверки лимитов)
+        Registration registration = registrationRepository.findByShowIdAndUserIdForUpdate(showId, userId)
                 .orElseThrow(() -> new AccessDeniedException("Вы не зарегистрированы на это шоу"));
         if (registration.getStatus() != StatusRegOfShow.APPROVED) {
             throw new AccessDeniedException("Ваша заявка на шоу не одобрена");
@@ -138,7 +139,11 @@ public class EntryService {
                 .judged(false)
                 .build();
 
-        entry = entryRepository.save(entry);
+        try {
+            entry = entryRepository.save(entry);
+        } catch (DataIntegrityViolationException e) {
+            throw new IllegalStateException("Эта модель уже добавлена в данный класс");
+        }
 
         return EntryResponse.builder()
                 .entryId(entry.getId())

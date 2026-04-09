@@ -17,12 +17,17 @@ import java.util.Set;
 @Entity
 @Table(name = "registrations", indexes = {
         @Index(name = "idx_registration_application_number", columnList = "application_number")
+}, uniqueConstraints = {
+        @UniqueConstraint(name = "uk_registration_user_show", columnNames = {"user_id", "show_id"})
 })
 public class Registration {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Version
+    private Long version;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)

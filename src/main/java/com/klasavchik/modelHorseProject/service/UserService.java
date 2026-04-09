@@ -64,12 +64,11 @@ public class UserService {
         user.setCreatedAt(LocalDate.now());
         user.setProfile(profile);
         user.setSettings(Settings.builder().build());
-        System.out.println("юзер готов");
-        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
-            return "Email already exists";
-        } else {
+        try {
             userRepository.save(user);
             return "User created: " + user.getEmail();
+        } catch (DataIntegrityViolationException e) {
+            return "Email already exists";
         }
     }
 
@@ -170,13 +169,13 @@ public class UserService {
         System.out.println("Attempting to save user: " + user.getEmail());
         try {
             User savedUser = userRepository.save(user);
-            System.out.println("User saved successfully: " + savedUser.getEmail());
         } catch (DataIntegrityViolationException e) {
-            System.out.println("Data integrity violation during save: " + e.getMessage());
-            throw new RuntimeException("Failed to save user due to data integrity violation", e);
-        } catch (Exception e) {
-            System.out.println("Unexpected error during save: " + e.getMessage());
-            throw new RuntimeException("Failed to save user", e);
+            // Проверяем, связана ли ошибка с nickname
+            String msg = e.getMostSpecificCause().getMessage();
+            if (msg != null && msg.contains("nickname")) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nickname already exists");
+            }
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Конфликт данных при сохранении профиля");
         }
     }
 
@@ -268,8 +267,11 @@ public class UserService {
             return; // Уже подписан, идемпотентно
         }
 
-        currentUser.follow(target);
-//        userRepository.save(currentUser);
+        try {
+            currentUser.follow(target);
+        } catch (DataIntegrityViolationException e) {
+            // Race condition — другой запрос уже создал подписку, игнорируем
+        }
     }
 
 

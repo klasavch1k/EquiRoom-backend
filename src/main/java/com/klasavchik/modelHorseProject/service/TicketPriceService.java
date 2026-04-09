@@ -3,6 +3,7 @@ package com.klasavchik.modelHorseProject.service;
 import com.klasavchik.modelHorseProject.dto.show.price.CreateTicketPriceDto;
 import com.klasavchik.modelHorseProject.entity.ShowEntity.Show;
 import com.klasavchik.modelHorseProject.entity.ShowEntity.TicketPrice;
+import com.klasavchik.modelHorseProject.repository.show.RegistrationRepository;
 import com.klasavchik.modelHorseProject.repository.show.ShowRepository;
 import com.klasavchik.modelHorseProject.repository.show.TicketPriceRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -18,6 +19,7 @@ public class TicketPriceService {
 
     private final TicketPriceRepository ticketPriceRepository;
     private final ShowRepository showRepository;
+    private final RegistrationRepository registrationRepository;
 
     public void addTicketPrice(Long showId, CreateTicketPriceDto dto, Long userId) {
         Show show = showRepository.findById(showId)
@@ -52,6 +54,11 @@ public class TicketPriceService {
 
         if (!price.getShow().getId().equals(showId)) {
             throw new IllegalArgumentException("Цена не принадлежит этому шоу");
+        }
+
+        // Защита от удаления тарифа с привязанными регистрациями
+        if (registrationRepository.existsByTicketPriceId(priceId)) {
+            throw new IllegalStateException("Невозможно удалить тариф: есть регистрации, привязанные к этому тарифу");
         }
 
         ticketPriceRepository.delete(price);

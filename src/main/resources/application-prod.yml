@@ -1,0 +1,47 @@
+spring:
+  application:
+    name: modelHorseProject
+
+  web:
+    resources:
+      static-locations: file:/app/uploads/
+
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 100MB
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+    properties:
+      hibernate:
+        show_sql: false
+        format_sql: false
+    open-in-view: false
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 0
+
+  security:
+    jwt:
+      secret: ${JWT_SECRET}
+      validity: 18000
+
+server:
+  address: 0.0.0.0
+  port: ${PORT:8080}
+
+logging:
+  level:
+    org.springframework: info
+    org.springframework.security: info

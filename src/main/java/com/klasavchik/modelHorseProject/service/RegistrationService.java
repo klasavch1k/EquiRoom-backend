@@ -102,20 +102,23 @@ public class RegistrationService {
             registration.setTicketPrice(ticketPrice);
         }
 
-        registration = registrationRepository.save(registration);
-
-        // Генерация applicationNumber через sequence (миграция sequence оставлена отдельно)
+        // Генерация applicationNumber через sequence ДО первого save (атомарность)
         Object nextObj = em.createNativeQuery("SELECT nextval('application_number_seq')").getSingleResult();
         long nextVal;
         if (nextObj instanceof Number) {
             nextVal = ((Number) nextObj).longValue();
         } else {
-            // на случай неожиданного типа, попробуем распарсить в long
             nextVal = Long.parseLong(nextObj.toString());
         }
         String formatted = String.format("REQ-%06d", nextVal);
         registration.setApplicationNumber(formatted);
-        registration = registrationRepository.save(registration);
+
+        // Один save — атомарно записываем полную регистрацию
+        try {
+            registration = registrationRepository.save(registration);
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            throw new IllegalStateException("Вы уже зарегистрированы на это шоу");
+        }
 
         String message = request.isSponsor()
                 ? "Заявка спонсора отправлена. Организатор свяжется с вами для обсуждения вклада."

@@ -2,9 +2,11 @@ package com.klasavchik.modelHorseProject.repository.show;
 
 import com.klasavchik.modelHorseProject.entity.ShowEntity.Registration;
 import com.klasavchik.modelHorseProject.entity.ShowEntity.StatusRegOfShow;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -47,7 +49,16 @@ public interface RegistrationRepository extends JpaRepository<Registration, Long
 
     Optional<Registration> findByShowIdAndUserId(Long showId, Long userId);
 
+    /**
+     * Пессимистическая блокировка регистрации — для атомарных операций (создание Entry с проверкой лимитов).
+     */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT r FROM Registration r WHERE r.show.id = :showId AND r.user.id = :userId")
+    Optional<Registration> findByShowIdAndUserIdForUpdate(@Param("showId") Long showId, @Param("userId") Long userId);
+
     Optional<Registration> findByApplicationNumber(String applicationNumber);
 
     boolean existsByApplicationNumber(String applicationNumber);
+
+    boolean existsByTicketPriceId(Long ticketPriceId);
 }
