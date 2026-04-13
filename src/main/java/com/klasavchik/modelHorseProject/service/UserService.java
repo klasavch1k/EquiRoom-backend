@@ -251,7 +251,6 @@ public class UserService {
         userRepository.save(user);
     }
 
-    // Новые методы для подписки/отписки
     @Transactional
     public void follow(Long targetId) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();

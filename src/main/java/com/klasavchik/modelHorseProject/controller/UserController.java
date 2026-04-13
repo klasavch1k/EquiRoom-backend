@@ -32,12 +32,13 @@ public class UserController {
         return userService.getAllUsers();
     }
 
-    //возвращает определённого юзера
+    //возвращает упрощёные данные  юзера по id
     @GetMapping("/{id}")
     public UserProfileDTO getUser(@PathVariable("id") Long id) {
         return userService.getUserProfile(id);
     }
 
+    // возвращает детальные данные юзера по id
     @GetMapping("{id}/detail")
     public DetailUserResponse getDetailUser(@PathVariable Long id) {
         return userService.getDetailUser(id);
@@ -54,6 +55,7 @@ public class UserController {
         return new RegisterResponse(userId, message);
     }
 
+    //поиск юзера по строке
     @GetMapping("/search")
     public Page<UserSearchDTO> searchUsers(
             @RequestParam("query") String query,
@@ -62,6 +64,8 @@ public class UserController {
         Pageable pageable = PageRequest.of(page, size);
         return userService.searchUsers(query, pageable);
     }
+
+    //возвращает список людей подписанных на юзера
     @GetMapping("/{id}/followers")
     public Page<UserSearchDTO> getFollowers(
             @PathVariable("id") Long id,
@@ -71,7 +75,7 @@ public class UserController {
         Pageable pageable = PageRequest.of(page, size);
         return userService.getFollowers(id, query, pageable);
     }
-
+    //возвращает список людей, на которых подписан юзер
     @GetMapping("/{id}/following")
     public Page<UserSearchDTO> getFollowing(
             @PathVariable("id") Long id,
@@ -93,17 +97,21 @@ public class UserController {
         }
     }
 
+    //проверка существования email
     @GetMapping("/check-email")
     public ResponseEntity<Boolean> checkEmail(@RequestParam String email) {
         boolean exists = userService.emailExists(email);
         return ResponseEntity.ok(exists);
     }
+
+    //проверка существования никнейма
     @GetMapping("/check-nickname")
     public ResponseEntity<Boolean> checkNickname(@RequestParam String nickname) {
         boolean exists = userService.nicknameExists(nickname);
         return ResponseEntity.ok(exists);
     }
 
+    //обновление пароля юзера
     @PutMapping("/update-password")
     public ResponseEntity<?> updatePassword(@RequestBody PasswordChangeRequest request) {
         // Получаем текущего пользователя
@@ -120,7 +128,9 @@ public class UserController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-// две ручки на изменения почты и номера
+
+
+// две ручки на изменения почты и номера(сейчас не работают, нужно подключить сервис для отправления кода)
 //    @PutMapping("/updateContactInform")
 //    public ResponseEntity<?> updateContactInform(
 //            @RequestPart("userData") UpdatePersonInformRequest userDto) throws IOException {
@@ -139,6 +149,7 @@ public class UserController {
 //        }
 //    }
 
+    // обновление персональной информации пользователя
     @PutMapping("/updatePersonInform")
     public ResponseEntity<?> updatePersonInform(
             @RequestPart("userData") UpdatePersonInformRequest userDto,
@@ -168,20 +179,21 @@ public class UserController {
         userService.deleteById(id);
     }
 
-    // Новые эндпоинты для подписки/отписки
+    // подписаться на юзера
     @PostMapping("/{id}/follow")
     @ResponseStatus(HttpStatus.OK)
     public void follow(@PathVariable("id") Long id) {
         userService.follow(id);
     }
 
-
+    //отписаться от юзерв
     @PostMapping("/{id}/unfollow")
     @ResponseStatus(HttpStatus.OK)
     public void unfollow(@PathVariable("id") Long id) {
         userService.unfollow(id);
     }
 
+    //обновление никнейма в VK(временная ручка, пока не сделаем авторизацию через Vk)
     @PutMapping("/me/vk-nickname")
     public ResponseEntity<Void> updateVkNickname(@RequestBody UpdateVkNicknameRequest request) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();

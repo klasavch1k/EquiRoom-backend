@@ -29,7 +29,7 @@ public class TicketPriceController {
     private final TicketPriceRepository ticketPriceRepository;
     private final ShowService showService; // если нужно проверять права
 
-    // Добавление одной цены
+    // Добавление нового типа билетов на шоу
     @PostMapping("/{showId}/ticket-prices")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Void> addTicketPrice(
@@ -41,7 +41,7 @@ public class TicketPriceController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    // Удаление одной цены
+    // Удаление типа билетов на шоу
     @DeleteMapping("/{showId}/ticket-prices/{priceId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Void> deleteTicketPrice(
@@ -65,13 +65,13 @@ public class TicketPriceController {
         return ResponseEntity.ok().build();
     }
 
+    //рабочий метод, позже сделаю для таких методов отдельный класс
     private Long getCurrentUserId() {
-        // твой метод, как в других контроллерах
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         return ((CustomUserDetails) auth.getPrincipal()).getUserId();
     }
-    // В ShowController или новом TicketPriceController
 
+    //получение всех типов билетов на шоу
     @GetMapping("/shows/{showId}/ticket-prices")
     public ResponseEntity<List<TicketPriceDto>> getTicketPrices(@PathVariable Long showId) {
         List<TicketPrice> prices = ticketPriceRepository.findByShowId(showId);
